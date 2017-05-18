@@ -1,0 +1,136 @@
+
+
+<ol class="breadcrumb">
+  <li><a href="../index.html">Gatling documentation</a></li>
+  <li><a href="index.html" accesskey="U">
+    General
+    </a>
+  </li>
+  <li><a href="">
+    Functional specs
+  </a></li>
+</ol>
+
+<div class="content-left-wrap col-md-9">
+  <div id="primary" class="content-area">
+    <main itemscope="" itemtype="http://schema.org/WebPageElement" itemprop="mainContentOfPage" id="main"
+          class="site-main">
+      <article id="documentation" class="type-post status-publish format-standard hentry category-non-classe">
+        <header class="entry-header">
+          <h1 class="entry-title" itemprop="headline">Functional specs</h1>
+        </header>
+        <div class="entry-content" itemprop="text">
+          
+          <div class="section" id="functional-specs">
+
+<p>Functional specs support was initially contributed by <a class="reference external" href="https://github.com/constantijn">Constantijn Visinescu</a>.</p>
+<div class="section" id="writing-functional-specs-with-gatling">
+<h2>Writing functional specs with gatling<a class="headerlink" href="#writing-functional-specs-with-gatling" title="Permalink to this headline">¶</a></h2>
+<p>In addition to writing load tests Gatling’s DSL also allows you to write functional specs that are meant to run along
+your integration or unit tests. This way you can write end to end tests using Gatling’s DSL. This is especially useful
+when testing REST APIs but it’s designed to work with anything you can retrieve over http.</p>
+<p>Functional tests written with Gatling look like this:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">GatlingFunSpecExample</span> <span class="k">extends</span> <span class="nc">GatlingHttpFunSpec</span> <span class="o">{</span> <span class="c1">// (1)</span>
+
+  <span class="k">val</span> <span class="n">baseURL</span> <span class="k">=</span> <span class="s">&quot;http://example.com&quot;</span> <span class="c1">// (2)</span>
+  <span class="k">override</span> <span class="k">def</span> <span class="n">httpConf</span> <span class="k">=</span> <span class="k">super</span><span class="o">.</span><span class="n">httpConf</span><span class="o">.</span><span class="n">header</span><span class="o">(</span><span class="s">&quot;MyHeader&quot;</span><span class="o">,</span> <span class="s">&quot;MyValue&quot;</span><span class="o">)</span> <span class="c1">// (3)</span>
+
+  <span class="n">spec</span> <span class="o">{</span> <span class="c1">// (4)</span>
+    <span class="n">http</span><span class="o">(</span><span class="s">&quot;Example index.html test&quot;</span><span class="o">)</span> <span class="c1">// (5)</span>
+      <span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="s">&quot;/index.html&quot;</span><span class="o">)</span> <span class="c1">// (6)</span>
+      <span class="o">.</span><span class="n">check</span><span class="o">(</span><span class="n">pageHeader</span><span class="o">.</span><span class="n">exists</span><span class="o">)</span> <span class="c1">// (7)</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
+
+<span class="k">object</span> <span class="nc">GatlingFunSpecExample</span> <span class="o">{</span>
+  <span class="k">def</span> <span class="n">pageHeader</span> <span class="k">=</span> <span class="n">css</span><span class="o">(</span><span class="s">&quot;h1&quot;</span><span class="o">)</span> <span class="c1">// (8)</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<ol class="arabic simple">
+<li>Have your test class extend GatlingHttpFunSpec to start writing a Gatling functional spec.</li>
+<li>Set the base URL of the endpoint you want to test.</li>
+<li>If needed you can overwrite or add to the gatling http configuration here by adding to or overriding the httpConf object. For a detailed description of all the additional options look <a class="reference internal" href="../http/http_protocol.html#http-protocol"><span class="std std-ref">here</span></a>.</li>
+<li>Every spec gets wrapped in it’s own spec block, you can have multiple specs per test.</li>
+<li>Every test should start with a human readable description of what you’re testing.</li>
+<li>The URL (relative to the baseURL) that you want to run checks on. (Post and other http methods are also supported).</li>
+<li>Start running your checks. For more info on what kind of checks you can run look <a class="reference internal" href="../http/http_check.html#http-check"><span class="std std-ref">here</span></a></li>
+<li>As a best practice you should put all your check type definitions in a companion object and your validations on them in the check statements. This leads to much more readable tests and less code duplication.</li>
+</ol>
+</div>
+<div class="section" id="quick-start">
+<h2>Quick start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h2>
+<p>We have an <a class="reference external" href="https://github.com/gatling/gatling-funspec-demo/">demo project</a> configured to run functional specs with sbt to help you get started right away.</p>
+</div>
+</div>
+
+          
+        </div>
+      </article>
+    </main>
+  </div>
+</div>
+
+
+<div class="sidebar-wrap col-md-3 content-left-wrap">
+  <div id="secondary" class="widget-area" role="complementary" itemscope="itemscope"
+       itemtype="http://schema.org/WPSideBar">
+    <aside id="search-2" class="widget widget_search">
+      <form role="form" method="get" class="search-form" action="../search.html">
+        <label>
+          <span class="screen-reader-text">Search through the documentation&nbsp;:</span>
+          <input type="search" class="search-field" placeholder="Search the documentation" name="q">
+        </label>
+        <input type="submit" class="search-submit" value="Search">
+      </form>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Table of Content</h1>
+      <ul>
+<li><a class="reference internal" href="#">Functional specs</a><ul>
+<li><a class="reference internal" href="#writing-functional-specs-with-gatling">Writing functional specs with gatling</a></li>
+<li><a class="reference internal" href="#quick-start">Quick start</a></li>
+</ul>
+</li>
+</ul>
+
+    </aside>
+    
+    <aside class="widget">
+      <h1 class="widget-title">Previous topic</h1>
+      <ul>
+        <li>
+          <a href="reports.html" title="Previous Chapter: Reports">
+            Reports
+          </a>
+        </li>
+      </ul>
+    </aside>
+    
+    
+    <aside class="widget">
+      <h1 class="widget-title">Next topic</h1>
+      <ul>
+        <li>
+          <a href="debugging.html" title="Next Chapter: Debugging">
+            Debugging
+          </a>
+        </li>
+      </ul>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Contribute</h1>
+      <ul>
+        <li>
+          <a href="https://github.com/gatling/gatling/edit/master/src/sphinx/general/functional_specs.rst">Edit this page on Github</a>
+        </li>
+      </ul>
+    </aside>
+  </div>
+</div>
+
+
+
+
+

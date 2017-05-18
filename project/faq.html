@@ -1,0 +1,193 @@
+
+
+<ol class="breadcrumb">
+  <li><a href="../index.html">Gatling documentation</a></li>
+  <li><a href="index.html" accesskey="U">
+    Project Information
+    </a>
+  </li>
+  <li><a href="">
+    FAQ
+  </a></li>
+</ol>
+
+<div class="content-left-wrap col-md-9">
+  <div id="primary" class="content-area">
+    <main itemscope="" itemtype="http://schema.org/WebPageElement" itemprop="mainContentOfPage" id="main"
+          class="site-main">
+      <article id="documentation" class="type-post status-publish format-standard hentry category-non-classe">
+        <header class="entry-header">
+          <h1 class="entry-title" itemprop="headline">FAQ</h1>
+        </header>
+        <div class="entry-content" itemprop="text">
+          
+          <div class="section" id="faq">
+<span id="id1"></span>
+<p>If you are here, chances are that Gatling does not work as expected.
+To help you fixing the problem, here is a list of common problems and their solutions.</p>
+<p>If you can’t find a solution here, consider joining our <a class="reference external" href="https://groups.google.com/forum/#!forum/gatling">Google Group</a>.</p>
+<ul class="simple" id="faq-gatling-highcharts-split">
+<li><strong>Why the hell did you move gatling-highcharts into a dedicated project?</strong></li>
+</ul>
+<p>Highcharts and Highstock are javascript libraries whose license is not open-source friendly.
+We pay license fees so that we can package and distribute them and let people use them <strong>for free</strong>, but this module can’t be open sourced.</p>
+<p>We really want to keep as much code as possible under Apache 2, so we move the reports generation library implementation into a separate project <a class="reference external" href="https://github.com/gatling/gatling-highcharts">https://github.com/gatling/gatling-highcharts</a>.</p>
+<p>If anyone can come with an Apache 2 licensed solution that’s as sexy and plug-and-play as Highcharts and Highstock, we’d gladly make it the default implementation and integrate it into the main project!</p>
+<p>See <a class="reference internal" href="licenses.html#license"><span class="std std-ref">License section</span></a></p>
+<ul class="simple" id="faq-gatling-highcharts-split2">
+<li><strong>I built from sources and got a java.lang.NoClassDefFoundError: io/gatling/charts/component/impl/ComponentLibraryImpl</strong></li>
+</ul>
+<p>See up here, the Highcharts based charts implementation is hosted in a separate project.
+You have to build it too.</p>
+<ul class="simple" id="faq-xss">
+<li><strong>Can’t compile long scenarios</strong></li>
+</ul>
+<p>Scenarios use method chaining <strong>a lot</strong>.
+The longer the chain, the bigger the stack size required by the compiler to compile them.</p>
+<p>This parameter can be increased with the <code class="docutils literal"><span class="pre">-Xss</span></code> JVM parameter.
+Another solution is of course to split into smaller chains.</p>
+<p>Since 2M3, Gatling forks a new process for running so compiler, so that one can tune JVM differently for compiler and running.
+The compiler JVM can be tuned with a parameter named <code class="docutils literal"><span class="pre">gatling.core.zinc</span></code> in <a class="reference external" href="https://github.com/gatling/gatling/blob/master/gatling-core/src/main/resources/gatling-defaults.conf#49">gatling.conf</a>.</p>
+<ul class="simple" id="faq-warmup">
+<li><strong>I get a “Connection timed out: no further information to http://gatling-tool.org”, what happened?</strong></li>
+</ul>
+<p>Since 1.2.0, Gatling has an option for sending a request in order to warm up the engine and have more precise statistics during the run.
+This option is enabled by default and <a class="reference external" href="http://gatling.io">http://gatling.io</a> is the default url.</p>
+<p>If Gatling can’t reach out this url either because you don’t have a connection, or because it requires a proxy configuration, you’ll get this stacktrace.</p>
+<p>Either disable this feature, or change the target url. See documentation <a class="reference internal" href="../http/http_protocol.html#http-protocol-warmup"><span class="std std-ref">here</span></a>.</p>
+<ul class="simple" id="faq-class-size">
+<li><strong>The compiler complains my Simulation class is too big</strong></li>
+</ul>
+<p>Scala classes have the same limitations as Java ones.
+For example, the amount of code inside a method can’t exceed 64Kb.</p>
+<p>If you are in this case (for example, you recorded a big maven installation), you should consider refactoring things a little bit.</p>
+<p>If you want to achieve modular and maintainable scenarios, you should consider externalizing processes as chains in other Scala objects.</p>
+<p>If you don’t care about maintainability but just want to quickly play what you recorded, you can move the chains outside of the <code class="docutils literal"><span class="pre">apply</span></code> method.
+Also consider changing them from <code class="docutils literal"><span class="pre">val</span></code> to <code class="docutils literal"><span class="pre">lazy</span> <span class="pre">val</span></code> if you have multiple Simulations in your directory.</p>
+<ul class="simple" id="faq-maven-log">
+<li><strong>How can I override the maven-gatling-plugin log level?</strong></li>
+<li>either set a JVM param <code class="docutils literal"><span class="pre">-Dlogback.configurationFile=/path/to/config.xml</span></code></li>
+<li>or add a <code class="docutils literal"><span class="pre">logback-test.xml</span></code> to your classpath that will have precedence over the embedded <code class="docutils literal"><span class="pre">logback.xml</span></code> file</li>
+</ul>
+<ul class="simple" id="faq-http-caching">
+<li><strong>I don’t get the number of HTTP requests I expect?</strong></li>
+</ul>
+<p>Are you sure that some requests are not being cached?
+Gatling does its best to simulate real users behavior, so HTTP caching is enabled by default.</p>
+<p>Depending on your use case, you might either realize that the number of requests is actually perfectly fine, or you might want to <a class="reference internal" href="../http/http_protocol.html#http-protocol-caching"><span class="std std-ref">disable caching</span></a>.</p>
+<ul class="simple" id="faq-scheduler">
+<li><strong>Does Gatling have a scheduler?</strong></li>
+</ul>
+<p>No.
+For now, we consider this is not a task for a load testing tool.
+We provide a Jenkins plugin and it’s easy to call the Gatling launch scripts from the scheduler of your choice.</p>
+<ul class="simple" id="faq-multiple-simulations">
+<li><strong>Can Gatling launch several simulations sequentially?</strong></li>
+</ul>
+<p>No.</p>
+<p>It was possible in old versions, but it caused tons of problems, so we removed this feature.</p>
+<p>However, just like scheduling, that’s something very easy to achieve outside Gatling. For example, one can configure <a class="reference external" href="http://maven.apache.org/guides/mini/guide-default-execution-ids.html">multiple executions</a> of the Gatling maven plugin, or multiple Jenkins jobs.</p>
+<ul class="simple" id="faq-method-too-large">
+<li><strong>I have a HUGE simulation and I get a “Method too large” compile error</strong></li>
+</ul>
+<p>In Java and Scala, there’s a method size limit. Here, the method is your Simulation constructor.</p>
+<p>Typically, you have to move your chains out of your Simulation class, for example into objects:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">object</span> <span class="nc">ChainLibrary1</span> <span class="o">{</span>
+  <span class="k">val</span> <span class="n">chain1</span><span class="k">:</span> <span class="kt">ChainBuilder</span> <span class="o">=</span> <span class="o">???</span>
+  <span class="k">val</span> <span class="n">chain2</span><span class="k">:</span> <span class="kt">ChainBuilder</span> <span class="o">=</span> <span class="o">???</span>
+  <span class="c1">// etc...</span>
+  <span class="k">val</span> <span class="n">chain100</span><span class="k">:</span> <span class="kt">ChainBuilder</span> <span class="o">=</span> <span class="o">???</span>
+<span class="o">}</span>
+
+<span class="k">object</span> <span class="nc">ChainLibrary2</span> <span class="o">{</span>
+  <span class="k">val</span> <span class="n">chain101</span><span class="k">:</span> <span class="kt">ChainBuilder</span> <span class="o">=</span> <span class="o">???</span>
+  <span class="k">val</span> <span class="n">chain102</span><span class="k">:</span> <span class="kt">ChainBuilder</span> <span class="o">=</span> <span class="o">???</span>
+  <span class="c1">// etc...</span>
+  <span class="k">val</span> <span class="n">chain150</span><span class="k">:</span> <span class="kt">ChainBuilder</span> <span class="o">=</span> <span class="o">???</span>
+<span class="o">}</span>
+
+<span class="k">class</span> <span class="nc">MyVeryBigSimulation</span> <span class="o">{</span>
+
+  <span class="k">import</span> <span class="nn">ChainLibrary1._</span>
+  <span class="k">import</span> <span class="nn">ChainLibrary2._</span>
+
+  <span class="k">val</span> <span class="n">scn</span> <span class="k">=</span> <span class="n">scenario</span><span class="o">(</span><span class="s">&quot;Name&quot;</span><span class="o">)</span>
+    <span class="o">.</span><span class="n">exec</span><span class="o">(</span><span class="n">chain1</span><span class="o">,</span> <span class="n">chain2</span><span class="o">,</span><span class="cm">/* etc... */</span> <span class="n">chain100</span><span class="o">)</span>
+    <span class="o">.</span><span class="n">exec</span><span class="o">(</span><span class="n">chain101</span><span class="o">,</span> <span class="n">chain102</span><span class="o">,</span><span class="cm">/* etc... */</span> <span class="n">chain150</span><span class="o">)</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<ul class="simple" id="dandling-connections">
+<li><strong>I have dandling connections that don’t get closed after timeout</strong></li>
+</ul>
+<p>This issue has been reported once, and preferring IPv4 fixed it:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="o">-</span><span class="nc">Djava</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">preferIPv4Stack</span><span class="k">=</span><span class="kc">true</span>
+</pre></div>
+</div>
+</div>
+
+          
+        </div>
+      </article>
+    </main>
+  </div>
+</div>
+
+
+<div class="sidebar-wrap col-md-3 content-left-wrap">
+  <div id="secondary" class="widget-area" role="complementary" itemscope="itemscope"
+       itemtype="http://schema.org/WPSideBar">
+    <aside id="search-2" class="widget widget_search">
+      <form role="form" method="get" class="search-form" action="../search.html">
+        <label>
+          <span class="screen-reader-text">Search through the documentation&nbsp;:</span>
+          <input type="search" class="search-field" placeholder="Search the documentation" name="q">
+        </label>
+        <input type="submit" class="search-submit" value="Search">
+      </form>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Table of Content</h1>
+      <ul>
+<li><a class="reference internal" href="#">FAQ</a></li>
+</ul>
+
+    </aside>
+    
+    <aside class="widget">
+      <h1 class="widget-title">Previous topic</h1>
+      <ul>
+        <li>
+          <a href="contributors.html" title="Previous Chapter: Contributors">
+            Contributors
+          </a>
+        </li>
+      </ul>
+    </aside>
+    
+    
+    <aside class="widget">
+      <h1 class="widget-title">Next topic</h1>
+      <ul>
+        <li>
+          <a href="issue_tracking.html" title="Next Chapter: Issue tracking">
+            Issue tracking
+          </a>
+        </li>
+      </ul>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Contribute</h1>
+      <ul>
+        <li>
+          <a href="https://github.com/gatling/gatling/edit/master/src/sphinx/project/faq.rst">Edit this page on Github</a>
+        </li>
+      </ul>
+    </aside>
+  </div>
+</div>
+
+
+
+
+

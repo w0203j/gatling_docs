@@ -1,0 +1,178 @@
+
+
+<ol class="breadcrumb">
+  <li><a href="../index.html">Gatling documentation</a></li>
+  <li><a href="index.html" accesskey="U">
+    General
+    </a>
+  </li>
+  <li><a href="">
+    Reports
+  </a></li>
+</ol>
+
+<div class="content-left-wrap col-md-9">
+  <div id="primary" class="content-area">
+    <main itemscope="" itemtype="http://schema.org/WebPageElement" itemprop="mainContentOfPage" id="main"
+          class="site-main">
+      <article id="documentation" class="type-post status-publish format-standard hentry category-non-classe">
+        <header class="entry-header">
+          <h1 class="entry-title" itemprop="headline">Reports</h1>
+        </header>
+        <div class="entry-content" itemprop="text">
+          
+          <div class="section" id="reports">
+<span id="id1"></span>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>Global menu points to consolidated statistics.</p>
+<p>Details menu points to per-request-type statistics.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Reports can be generated from the simulation.log file even if the scenario was interrupted (Ctrl+C or process killed), use the <code class="docutils literal"><span class="pre">-ro</span></code> option.
+See <a class="reference internal" href="configuration.html#gatling-cli-options"><span class="std std-ref">Configuration page</span></a>.</p>
+</div>
+</div>
+<div class="section" id="overall-simulation-charts">
+<h2>Overall Simulation charts<a class="headerlink" href="#overall-simulation-charts" title="Permalink to this headline">¶</a></h2>
+<p>Most of those charts are available for both the overall simulation report and for per request/group charts.</p>
+<div class="section" id="indicators">
+<h3>Indicators<a class="headerlink" href="#indicators" title="Permalink to this headline">¶</a></h3>
+<img alt="DetailsIndicators" src="../_images/charts-indicators.png" />
+<p>This chart shows how response times are distributed among standard ranges.
+The right panel show number of OK/KO requests.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">these ranges can be configured in the <code class="docutils literal"><span class="pre">gatling.conf</span></code> file.</p>
+</div>
+<img alt="Statistics" src="../_images/charts-statistics.png" />
+<p>The top panel shows some standard statistics such as min, max, average, standard deviation and percentiles globally and per request.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">these percentiles can be configured in the <code class="docutils literal"><span class="pre">gatling.conf</span></code> file.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If your scenario contains groups, this panel becomes a tree : each group is a non leaf node, and each request is a descendant leaf of a group. Group timings are by default the cumulated response times of all elements inside the group. Group duration can be displayed instead of group cumulated response time by editing the <code class="docutils literal"><span class="pre">gatling.conf</span></code> file.</p>
+</div>
+<p>The bottom panel shows some details on the failed requests.</p>
+</div>
+<div class="section" id="active-users-over-time">
+<h3>Active users over time<a class="headerlink" href="#active-users-over-time" title="Permalink to this headline">¶</a></h3>
+<img alt="ActiveUsers" src="../_images/charts-users.png" />
+<p>This chart displays the active users during the simulation : total and per scenario.</p>
+</div>
+<div class="section" id="response-time-distribution">
+<h3>Response time distribution<a class="headerlink" href="#response-time-distribution" title="Permalink to this headline">¶</a></h3>
+<img alt="ResponseTimeDistribution" src="../_images/charts-distrib.png" />
+<p>This chart displays the distribution of the response times.</p>
+</div>
+<div class="section" id="response-time-percentiles-over-time">
+<h3>Response time percentiles over time<a class="headerlink" href="#response-time-percentiles-over-time" title="Permalink to this headline">¶</a></h3>
+<img alt="ResponseTimePercentilesPerSecond" src="../_images/charts-response-percentiles-per-sec.png" />
+<p>This charts displays a variety of response time percentiles over time, but only for successful requests.
+As failed requests can end prematurely or be caused by timeouts, they would have a drastic effect on the percentiles computation.</p>
+</div>
+<div class="section" id="requests-per-second-over-time">
+<h3>Requests per second over time<a class="headerlink" href="#requests-per-second-over-time" title="Permalink to this headline">¶</a></h3>
+<img alt="RequestsPerSecond" src="../_images/charts-requests-per-sec.png" />
+<p>This chart displays the number of requests sent per second over time.</p>
+</div>
+<div class="section" id="responses-per-second-over-time">
+<h3>Responses per second over time<a class="headerlink" href="#responses-per-second-over-time" title="Permalink to this headline">¶</a></h3>
+<img alt="TransactionsPerSecond" src="../_images/charts-responses-per-sec.png" />
+<p>This chart displays the number of responses received per second over time : total, successes and failures.</p>
+</div>
+</div>
+<div class="section" id="request-group-specific-charts">
+<h2>Request/group specific charts<a class="headerlink" href="#request-group-specific-charts" title="Permalink to this headline">¶</a></h2>
+<p>Those charts are only available when consulting the details for a request/group.</p>
+<div class="section" id="response-time-against-global-rps">
+<h3>Response Time against Global RPS<a class="headerlink" href="#response-time-against-global-rps" title="Permalink to this headline">¶</a></h3>
+<img alt="ResponseTimeOverLoad" src="../_images/charts-response-time-global-rps.png" />
+<p>This chart shows how the response time for the given request is distributed, depending on the overall number of request at the same time.</p>
+</div>
+</div>
+</div>
+
+          
+        </div>
+      </article>
+    </main>
+  </div>
+</div>
+
+
+<div class="sidebar-wrap col-md-3 content-left-wrap">
+  <div id="secondary" class="widget-area" role="complementary" itemscope="itemscope"
+       itemtype="http://schema.org/WPSideBar">
+    <aside id="search-2" class="widget widget_search">
+      <form role="form" method="get" class="search-form" action="../search.html">
+        <label>
+          <span class="screen-reader-text">Search through the documentation&nbsp;:</span>
+          <input type="search" class="search-field" placeholder="Search the documentation" name="q">
+        </label>
+        <input type="submit" class="search-submit" value="Search">
+      </form>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Table of Content</h1>
+      <ul>
+<li><a class="reference internal" href="#">Reports</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#overall-simulation-charts">Overall Simulation charts</a><ul>
+<li><a class="reference internal" href="#indicators">Indicators</a></li>
+<li><a class="reference internal" href="#active-users-over-time">Active users over time</a></li>
+<li><a class="reference internal" href="#response-time-distribution">Response time distribution</a></li>
+<li><a class="reference internal" href="#response-time-percentiles-over-time">Response time percentiles over time</a></li>
+<li><a class="reference internal" href="#requests-per-second-over-time">Requests per second over time</a></li>
+<li><a class="reference internal" href="#responses-per-second-over-time">Responses per second over time</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#request-group-specific-charts">Request/group specific charts</a><ul>
+<li><a class="reference internal" href="#response-time-against-global-rps">Response Time against Global RPS</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    </aside>
+    
+    <aside class="widget">
+      <h1 class="widget-title">Previous topic</h1>
+      <ul>
+        <li>
+          <a href="timings.html" title="Previous Chapter: Timings">
+            Timings
+          </a>
+        </li>
+      </ul>
+    </aside>
+    
+    
+    <aside class="widget">
+      <h1 class="widget-title">Next topic</h1>
+      <ul>
+        <li>
+          <a href="functional_specs.html" title="Next Chapter: Functional specs">
+            Functional specs
+          </a>
+        </li>
+      </ul>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Contribute</h1>
+      <ul>
+        <li>
+          <a href="https://github.com/gatling/gatling/edit/master/src/sphinx/general/reports.rst">Edit this page on Github</a>
+        </li>
+      </ul>
+    </aside>
+  </div>
+</div>
+
+
+
+
+

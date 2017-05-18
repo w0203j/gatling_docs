@@ -1,0 +1,153 @@
+
+
+<ol class="breadcrumb">
+  <li><a href="../index.html">Gatling documentation</a></li>
+  <li><a href="index.html" accesskey="U">
+    Information for Gatling Developers
+    </a>
+  </li>
+  <li><a href="">
+    Building Gatling
+  </a></li>
+</ol>
+
+<div class="content-left-wrap col-md-9">
+  <div id="primary" class="content-area">
+    <main itemscope="" itemtype="http://schema.org/WebPageElement" itemprop="mainContentOfPage" id="main"
+          class="site-main">
+      <article id="documentation" class="type-post status-publish format-standard hentry category-non-classe">
+        <header class="entry-header">
+          <h1 class="entry-title" itemprop="headline">Building Gatling</h1>
+        </header>
+        <div class="entry-content" itemprop="text">
+          
+          <div class="section" id="building-gatling">
+
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">We use <a class="reference external" href="https://travis-ci.org/excilys/gatling">Travis CI</a> for continuous integration. You can find the latest snapshot on <a class="reference external" href="https://oss.sonatype.org/content/repositories/snapshots/io/gatling/highcharts/gatling-charts-highcharts-bundle/">Sonatype</a>.</p>
+</div>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>As stated in the <a class="reference internal" href="../project/licenses.html#license"><span class="std std-ref">Licenses section</span></a>, Gatling is divided into two sub-projects :</p>
+<ul class="simple">
+<li>Gatling, the core engine</li>
+<li>Gatling Highcharts, the charting engine</li>
+</ul>
+<p>In order to fully build Gatling, you’ll need to build, in the following order, Gatling then Gatling Highcharts.</p>
+</div>
+<div class="section" id="getting-the-source">
+<h2>Getting the source<a class="headerlink" href="#getting-the-source" title="Permalink to this headline">¶</a></h2>
+<p>Gatling is hosted on <a class="reference external" href="http://github.com/gatling/">Github</a>.</p>
+<p>You’ll need to <a class="reference external" href="http://git-scm.com/downloads">install Git</a> on your machine first.</p>
+<p>You can then clone Gatling from <code class="docutils literal"><span class="pre">http://github.com/gatling/gatling</span></code>, and Gatling Highcharts from <code class="docutils literal"><span class="pre">http://github.com/gatling/gatling-highcharts</span></code>:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">http</span><span class="o">://</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">gatling</span><span class="o">/</span><span class="n">gatling</span>
+<span class="n">git</span> <span class="n">clone</span> <span class="n">http</span><span class="o">://</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">gatling</span><span class="o">/</span><span class="n">gatling</span><span class="o">-</span><span class="n">highcharts</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="building-with-sbt">
+<h2>Building with SBT<a class="headerlink" href="#building-with-sbt" title="Permalink to this headline">¶</a></h2>
+<p>Gatling uses <a class="reference external" href="http://www.scala-sbt.org">SBT</a> as its build tool.</p>
+<p>You’ll need <a class="reference external" href="http://www.scala-sbt.org/0.13/tutorial/Setup.html">to install it</a> first, or you can use the <a class="reference external" href="https://raw.githubusercontent.com/paulp/sbt-extras/master/sbt">sbt script</a>
+from Paul Philips’ <code class="docutils literal"><span class="pre">sbt-extras</span></code> for an easier setup.</p>
+<p>After SBT has been installed and you’re in either one of the project’s directories, you can then :</p>
+<ul class="simple">
+<li>compile the project : <code class="docutils literal"><span class="pre">sbt</span> <span class="pre">compile</span></code></li>
+<li>run the tests : <code class="docutils literal"><span class="pre">sbt</span> <span class="pre">test</span></code></li>
+<li>deploy the artifacts in your local Ivy and Maven repositories : <code class="docutils literal"><span class="pre">sbt</span> <span class="pre">publishLocal</span> <span class="pre">publishM2</span></code></li>
+</ul>
+</div>
+<div class="section" id="running-gatling">
+<h2>Running Gatling<a class="headerlink" href="#running-gatling" title="Permalink to this headline">¶</a></h2>
+<p>There are several ways to run Gatling with your locally compiled sources to check that all’s working fine.</p>
+<div class="section" id="from-the-bundle">
+<h3>From the bundle<a class="headerlink" href="#from-the-bundle" title="Permalink to this headline">¶</a></h3>
+<p>After you have successfully built both Gatling and Gatling Highcharts, you can then find in your local Ivy repository the full bundle built by Gatling Highcharts,
+which behaves exactly like the bundles published on Sonatype.</p>
+<p>The bundle can be found in <code class="docutils literal"><span class="pre">&lt;Ivy</span> <span class="pre">repo</span> <span class="pre">root/local/io.gatling.highcharts/gatling-charts-highcharts-bundle/&lt;version&gt;/zips/gatling-charts-highcharts-bundle-bundle.zip</span></code>,
+<code class="docutils literal"><span class="pre">&lt;Ivy</span> <span class="pre">repo</span> <span class="pre">root&gt;</span></code> usually being <code class="docutils literal"><span class="pre">~/.ivy2/</span></code>.</p>
+</div>
+<div class="section" id="using-gatling-s-plugins-integrations">
+<h3>Using Gatling’s plugins/integrations<a class="headerlink" href="#using-gatling-s-plugins-integrations" title="Permalink to this headline">¶</a></h3>
+<p>You can use any of Gatling plugins and integrations with your locally compiled sources.</p>
+<p>Just make sure that you change the Gatling’s version you’re using in your project to the current SNAPSHOT version.</p>
+</div>
+</div>
+</div>
+
+          
+        </div>
+      </article>
+    </main>
+  </div>
+</div>
+
+
+<div class="sidebar-wrap col-md-3 content-left-wrap">
+  <div id="secondary" class="widget-area" role="complementary" itemscope="itemscope"
+       itemtype="http://schema.org/WPSideBar">
+    <aside id="search-2" class="widget widget_search">
+      <form role="form" method="get" class="search-form" action="../search.html">
+        <label>
+          <span class="screen-reader-text">Search through the documentation&nbsp;:</span>
+          <input type="search" class="search-field" placeholder="Search the documentation" name="q">
+        </label>
+        <input type="submit" class="search-submit" value="Search">
+      </form>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Table of Content</h1>
+      <ul>
+<li><a class="reference internal" href="#">Building Gatling</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#getting-the-source">Getting the source</a></li>
+<li><a class="reference internal" href="#building-with-sbt">Building with SBT</a></li>
+<li><a class="reference internal" href="#running-gatling">Running Gatling</a><ul>
+<li><a class="reference internal" href="#from-the-bundle">From the bundle</a></li>
+<li><a class="reference internal" href="#using-gatling-s-plugins-integrations">Using Gatling’s plugins/integrations</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    </aside>
+    
+    <aside class="widget">
+      <h1 class="widget-title">Previous topic</h1>
+      <ul>
+        <li>
+          <a href="index.html" title="Previous Chapter: Information for Gatling Developers">
+            Information for Gatli...
+          </a>
+        </li>
+      </ul>
+    </aside>
+    
+    
+    <aside class="widget">
+      <h1 class="widget-title">Next topic</h1>
+      <ul>
+        <li>
+          <a href="dev_guidelines.html" title="Next Chapter: Developer Guidelines">
+            Developer Guidelines
+          </a>
+        </li>
+      </ul>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Contribute</h1>
+      <ul>
+        <li>
+          <a href="https://github.com/gatling/gatling/edit/master/src/sphinx/developing_gatling/building_gatling.rst">Edit this page on Github</a>
+        </li>
+      </ul>
+    </aside>
+  </div>
+</div>
+
+
+
+
+

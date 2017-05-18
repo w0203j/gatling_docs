@@ -1,0 +1,159 @@
+
+
+<ol class="breadcrumb">
+  <li><a href="../index.html">Gatling documentation</a></li>
+  <li><a href="index.html" accesskey="U">
+    HTTP
+    </a>
+  </li>
+  <li><a href="">
+    HTTP Helpers
+  </a></li>
+</ol>
+
+<div class="content-left-wrap col-md-9">
+  <div id="primary" class="content-area">
+    <main itemscope="" itemtype="http://schema.org/WebPageElement" itemprop="mainContentOfPage" id="main"
+          class="site-main">
+      <article id="documentation" class="type-post status-publish format-standard hentry category-non-classe">
+        <header class="entry-header">
+          <h1 class="entry-title" itemprop="headline">HTTP Helpers</h1>
+        </header>
+        <div class="entry-content" itemprop="text">
+          
+          <div class="section" id="http-helpers">
+<span id="id1"></span>
+<div class="section" id="dealing-with-cookies">
+<span id="http-helpers-cookie"></span><h2>Dealing with Cookies<a class="headerlink" href="#dealing-with-cookies" title="Permalink to this headline">¶</a></h2>
+<p>Cookie support is enabled by default and then Gatling handles Cookies transparently, just like a browser would.</p>
+<p>However, some use cases require a more fine grain control.</p>
+<div class="section" id="adding-a-cookie">
+<span id="http-helpers-cookie-add"></span><h3>Adding a Cookie<a class="headerlink" href="#adding-a-cookie" title="Permalink to this headline">¶</a></h3>
+<p>One might want to manually add or compute a cookie:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">exec</span><span class="o">(</span><span class="n">addCookie</span><span class="o">(</span><span class="nc">Cookie</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">,</span> <span class="s">&quot;value&quot;</span><span class="o">)))</span>
+</pre></div>
+</div>
+<p>Cookie can also take more optional parameters:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="nc">Cookie</span><span class="o">(</span><span class="n">name</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">value</span><span class="k">:</span> <span class="kt">Expression</span><span class="o">[</span><span class="kt">String</span><span class="o">])</span>
+  <span class="o">.</span><span class="n">withDomain</span><span class="o">(</span><span class="n">domain</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">withPath</span><span class="o">(</span><span class="n">path</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">withMaxAge</span><span class="o">(</span><span class="n">maxAge</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span>
+</pre></div>
+</div>
+<p>domain is optional, defaulting to base url domain
+path is optional, defaulting to “/”
+maxAge is optional, defaulting to <code class="docutils literal"><span class="pre">Long.MinValue</span></code></p>
+</div>
+<div class="section" id="getting-a-cookie-value">
+<span id="http-helpers-cookie-get"></span><h3>Getting a Cookie Value<a class="headerlink" href="#getting-a-cookie-value" title="Permalink to this headline">¶</a></h3>
+<p>Get the cookie value and put it in the session</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">exec</span><span class="o">(</span><span class="n">getCookieValue</span><span class="o">(</span><span class="nc">CookieKey</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">)))</span>
+</pre></div>
+</div>
+<p>CookieKey can also take more optional parameters:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="nc">CookieKey</span><span class="o">(</span><span class="n">name</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">withDomain</span><span class="o">(</span><span class="n">domain</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">withPath</span><span class="o">(</span><span class="n">path</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">saveAs</span><span class="o">(</span><span class="n">key</span><span class="k">:</span> <span class="kt">String</span><span class="o">)</span>
+</pre></div>
+</div>
+<p>domain is optional, defaulting to base url domain
+path is optional, defaulting to “/”
+saveAs is optional, defaulting to <code class="docutils literal"><span class="pre">name</span></code> param</p>
+</div>
+<div class="section" id="flushing-session-cookies">
+<span id="http-helpers-cookie-flush-session"></span><h3>Flushing Session Cookies<a class="headerlink" href="#flushing-session-cookies" title="Permalink to this headline">¶</a></h3>
+<p>One might want to simulate closing a browser, so Session cookies are dropped but permanent cookies are still there:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">exec</span><span class="o">(</span><span class="n">flushSessionCookies</span><span class="o">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="flushing-all-cookies">
+<span id="http-helpers-cookie-flush-all"></span><h3>Flushing All Cookies<a class="headerlink" href="#flushing-all-cookies" title="Permalink to this headline">¶</a></h3>
+<p>One might want to flush the whole CookieJar:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">exec</span><span class="o">(</span><span class="n">flushCookieJar</span><span class="o">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="dealing-with-caching">
+<span id="http-helpers-cache"></span><h2>Dealing with Caching<a class="headerlink" href="#dealing-with-caching" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="flushing-the-cache">
+<span id="http-helpers-cache-flush"></span><h3>Flushing the Cache<a class="headerlink" href="#flushing-the-cache" title="Permalink to this headline">¶</a></h3>
+<p>One might want to flush the whole HTTP cache (for the virtual user) :</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">exec</span><span class="o">(</span><span class="n">flushHttpCache</span><span class="o">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+          
+        </div>
+      </article>
+    </main>
+  </div>
+</div>
+
+
+<div class="sidebar-wrap col-md-3 content-left-wrap">
+  <div id="secondary" class="widget-area" role="complementary" itemscope="itemscope"
+       itemtype="http://schema.org/WPSideBar">
+    <aside id="search-2" class="widget widget_search">
+      <form role="form" method="get" class="search-form" action="../search.html">
+        <label>
+          <span class="screen-reader-text">Search through the documentation&nbsp;:</span>
+          <input type="search" class="search-field" placeholder="Search the documentation" name="q">
+        </label>
+        <input type="submit" class="search-submit" value="Search">
+      </form>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Table of Content</h1>
+      <ul>
+<li><a class="reference internal" href="#">HTTP Helpers</a><ul>
+<li><a class="reference internal" href="#dealing-with-cookies">Dealing with Cookies</a></li>
+<li><a class="reference internal" href="#dealing-with-caching">Dealing with Caching</a></li>
+</ul>
+</li>
+</ul>
+
+    </aside>
+    
+    <aside class="widget">
+      <h1 class="widget-title">Previous topic</h1>
+      <ul>
+        <li>
+          <a href="http_ssl.html" title="Previous Chapter: SSL">
+            SSL
+          </a>
+        </li>
+      </ul>
+    </aside>
+    
+    
+    <aside class="widget">
+      <h1 class="widget-title">Next topic</h1>
+      <ul>
+        <li>
+          <a href="recorder.html" title="Next Chapter: Recorder">
+            Recorder
+          </a>
+        </li>
+      </ul>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Contribute</h1>
+      <ul>
+        <li>
+          <a href="https://github.com/gatling/gatling/edit/master/src/sphinx/http/http_helpers.rst">Edit this page on Github</a>
+        </li>
+      </ul>
+    </aside>
+  </div>
+</div>
+
+
+
+
+

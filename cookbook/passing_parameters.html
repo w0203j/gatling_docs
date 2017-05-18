@@ -1,0 +1,105 @@
+
+
+<ol class="breadcrumb">
+  <li><a href="../index.html">Gatling documentation</a></li>
+  <li><a href="index.html" accesskey="U">
+    Cookbook
+    </a>
+  </li>
+  <li><a href="">
+    Passing Parameters
+  </a></li>
+</ol>
+
+<div class="content-left-wrap col-md-9">
+  <div id="primary" class="content-area">
+    <main itemscope="" itemtype="http://schema.org/WebPageElement" itemprop="mainContentOfPage" id="main"
+          class="site-main">
+      <article id="documentation" class="type-post status-publish format-standard hentry category-non-classe">
+        <header class="entry-header">
+          <h1 class="entry-title" itemprop="headline">Passing Parameters</h1>
+        </header>
+        <div class="entry-content" itemprop="text">
+          
+          <div class="section" id="passing-parameters">
+
+<p>You might want to pass parameters from the command line to the Simulation, for example the number of users, the duration of the ramp…</p>
+<p>This can be done very easily with additional <code class="docutils literal"><span class="pre">JAVA_OPTS</span></code> in the launch script:</p>
+<p><code class="docutils literal"><span class="pre">JAVA_OPTS=&quot;-Dusers=500</span> <span class="pre">-Dramp=3600&quot;</span></code></p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">nbUsers</span> <span class="k">=</span> <span class="nc">Integer</span><span class="o">.</span><span class="n">getInteger</span><span class="o">(</span><span class="s">&quot;users&quot;</span><span class="o">,</span> <span class="mi">1</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">myRamp</span>  <span class="k">=</span> <span class="n">java</span><span class="o">.</span><span class="n">lang</span><span class="o">.</span><span class="nc">Long</span><span class="o">.</span><span class="n">getLong</span><span class="o">(</span><span class="s">&quot;ramp&quot;</span><span class="o">,</span> <span class="mi">0L</span><span class="o">)</span>
+<span class="n">setUp</span><span class="o">(</span><span class="n">scn</span><span class="o">.</span><span class="n">inject</span><span class="o">(</span><span class="n">rampUsers</span><span class="o">(</span><span class="n">nbUsers</span><span class="o">)</span> <span class="n">over</span> <span class="o">(</span><span class="n">myRamp</span> <span class="n">seconds</span><span class="o">)))</span>
+</pre></div>
+</div>
+<p>Of course, passing a String is just as easy as:</p>
+<p><code class="docutils literal"><span class="pre">JAVA_OPTS=&quot;-Dfoo=bar&quot;</span></code></p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">foo</span> <span class="k">=</span> <span class="nc">System</span><span class="o">.</span><span class="n">getProperty</span><span class="o">(</span><span class="s">&quot;foo&quot;</span><span class="o">)</span>
+</pre></div>
+</div>
+</div>
+
+          
+        </div>
+      </article>
+    </main>
+  </div>
+</div>
+
+
+<div class="sidebar-wrap col-md-3 content-left-wrap">
+  <div id="secondary" class="widget-area" role="complementary" itemscope="itemscope"
+       itemtype="http://schema.org/WPSideBar">
+    <aside id="search-2" class="widget widget_search">
+      <form role="form" method="get" class="search-form" action="../search.html">
+        <label>
+          <span class="screen-reader-text">Search through the documentation&nbsp;:</span>
+          <input type="search" class="search-field" placeholder="Search the documentation" name="q">
+        </label>
+        <input type="submit" class="search-submit" value="Search">
+      </form>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Table of Content</h1>
+      <ul>
+<li><a class="reference internal" href="#">Passing Parameters</a></li>
+</ul>
+
+    </aside>
+    
+    <aside class="widget">
+      <h1 class="widget-title">Previous topic</h1>
+      <ul>
+        <li>
+          <a href="scaling_out.html" title="Previous Chapter: Scaling Out">
+            Scaling Out
+          </a>
+        </li>
+      </ul>
+    </aside>
+    
+    
+    <aside class="widget">
+      <h1 class="widget-title">Next topic</h1>
+      <ul>
+        <li>
+          <a href="handling_jsf.html" title="Next Chapter: Handling JSF">
+            Handling JSF
+          </a>
+        </li>
+      </ul>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Contribute</h1>
+      <ul>
+        <li>
+          <a href="https://github.com/gatling/gatling/edit/master/src/sphinx/cookbook/passing_parameters.rst">Edit this page on Github</a>
+        </li>
+      </ul>
+    </aside>
+  </div>
+</div>
+
+
+
+
+

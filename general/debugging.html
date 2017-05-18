@@ -1,0 +1,127 @@
+
+
+<ol class="breadcrumb">
+  <li><a href="../index.html">Gatling documentation</a></li>
+  <li><a href="index.html" accesskey="U">
+    General
+    </a>
+  </li>
+  <li><a href="">
+    Debugging
+  </a></li>
+</ol>
+
+<div class="content-left-wrap col-md-9">
+  <div id="primary" class="content-area">
+    <main itemscope="" itemtype="http://schema.org/WebPageElement" itemprop="mainContentOfPage" id="main"
+          class="site-main">
+      <article id="documentation" class="type-post status-publish format-standard hentry category-non-classe">
+        <header class="entry-header">
+          <h1 class="entry-title" itemprop="headline">Debugging</h1>
+        </header>
+        <div class="entry-content" itemprop="text">
+          
+          <div class="section" id="debugging">
+<span id="id1"></span>
+<div class="section" id="print-session-values">
+<h2>Print Session Values<a class="headerlink" href="#print-session-values" title="Permalink to this headline">¶</a></h2>
+<p>Print all the values within a session with this function literal.</p>
+<p>Print a session value</p>
+</div>
+<div class="section" id="logback">
+<h2>Logback<a class="headerlink" href="#logback" title="Permalink to this headline">¶</a></h2>
+<p>There’s a logback.xml file in the Gatling conf directory.
+You can either set the log-level to TRACE to log all HTTP
+requests and responses or DEBUG to log failed HTTP request
+and responses.</p>
+<p>It will by default print debugging information to the console,
+but you can add a file appender,</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;appender</span> <span class="na">name=</span><span class="s">&quot;FILE&quot;</span> <span class="na">class=</span><span class="s">&quot;ch.qos.logback.core.FileAppender&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;file&gt;</span>../gatling.log<span class="nt">&lt;/file&gt;</span>
+    <span class="nt">&lt;append&gt;</span>true<span class="nt">&lt;/append&gt;</span>
+    <span class="nt">&lt;encoder&gt;</span>
+        <span class="nt">&lt;pattern&gt;</span>%d{HH:mm:ss.SSS} [%-5level] %logger{15} - %msg%n%rEx<span class="nt">&lt;/pattern&gt;</span>
+    <span class="nt">&lt;/encoder&gt;</span>
+<span class="nt">&lt;/appender&gt;</span>
+</pre></div>
+</div>
+<p>And reference that appender</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;root</span> <span class="na">level=</span><span class="s">&quot;WARN&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;appender-ref</span> <span class="na">ref=</span><span class="s">&quot;FILE&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/root&gt;</span>
+</pre></div>
+</div>
+<p>This can be useful if you run at one user and remove all
+logging apart from the HTML, and open the file in your browser.</p>
+</div>
+</div>
+
+          
+        </div>
+      </article>
+    </main>
+  </div>
+</div>
+
+
+<div class="sidebar-wrap col-md-3 content-left-wrap">
+  <div id="secondary" class="widget-area" role="complementary" itemscope="itemscope"
+       itemtype="http://schema.org/WPSideBar">
+    <aside id="search-2" class="widget widget_search">
+      <form role="form" method="get" class="search-form" action="../search.html">
+        <label>
+          <span class="screen-reader-text">Search through the documentation&nbsp;:</span>
+          <input type="search" class="search-field" placeholder="Search the documentation" name="q">
+        </label>
+        <input type="submit" class="search-submit" value="Search">
+      </form>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Table of Content</h1>
+      <ul>
+<li><a class="reference internal" href="#">Debugging</a><ul>
+<li><a class="reference internal" href="#print-session-values">Print Session Values</a></li>
+<li><a class="reference internal" href="#logback">Logback</a></li>
+</ul>
+</li>
+</ul>
+
+    </aside>
+    
+    <aside class="widget">
+      <h1 class="widget-title">Previous topic</h1>
+      <ul>
+        <li>
+          <a href="functional_specs.html" title="Previous Chapter: Functional specs">
+            Functional specs
+          </a>
+        </li>
+      </ul>
+    </aside>
+    
+    
+    <aside class="widget">
+      <h1 class="widget-title">Next topic</h1>
+      <ul>
+        <li>
+          <a href="../session/index.html" title="Next Chapter: Session">
+            Session
+          </a>
+        </li>
+      </ul>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Contribute</h1>
+      <ul>
+        <li>
+          <a href="https://github.com/gatling/gatling/edit/master/src/sphinx/general/debugging.rst">Edit this page on Github</a>
+        </li>
+      </ul>
+    </aside>
+  </div>
+</div>
+
+
+
+
+

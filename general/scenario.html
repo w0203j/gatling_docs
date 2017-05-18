@@ -1,0 +1,521 @@
+
+
+<ol class="breadcrumb">
+  <li><a href="../index.html">Gatling documentation</a></li>
+  <li><a href="index.html" accesskey="U">
+    General
+    </a>
+  </li>
+  <li><a href="">
+    Scenario
+  </a></li>
+</ol>
+
+<div class="content-left-wrap col-md-9">
+  <div id="primary" class="content-area">
+    <main itemscope="" itemtype="http://schema.org/WebPageElement" itemprop="mainContentOfPage" id="main"
+          class="site-main">
+      <article id="documentation" class="type-post status-publish format-standard hentry category-non-classe">
+        <header class="entry-header">
+          <h1 class="entry-title" itemprop="headline">Scenario</h1>
+        </header>
+        <div class="entry-content" itemprop="text">
+          
+          <div class="section" id="scenario">
+<span id="id1"></span>
+<p>This is the reference of the different components available to write scenarios with Gatling.</p>
+<div class="section" id="bootstrapping">
+<h2>Bootstrapping<a class="headerlink" href="#bootstrapping" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal"><span class="pre">scenario</span></code> is the way to bootstrap a new scenario.</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">scenario</span><span class="o">(</span><span class="s">&quot;My Scenario&quot;</span><span class="o">)</span>
+</pre></div>
+</div>
+<p>You can use any character in the name of the scenario <strong>except</strong> tabulations: <strong>t</strong>.</p>
+</div>
+<div class="section" id="structure-elements">
+<h2>Structure elements<a class="headerlink" href="#structure-elements" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="exec">
+<span id="scenario-exec"></span><h3>Exec<a class="headerlink" href="#exec" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal"><span class="pre">exec</span></code> method is used to execute an action.
+Actions are usually requests (HTTP, LDAP, POP, IMAP, etc) that will be sent during the simulation.
+Any action that will be executed will be called with <code class="docutils literal"><span class="pre">exec</span></code>.</p>
+<p>For example, when using the Gatling HTTP module you would write the following line:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">scenario</span><span class="o">(</span><span class="s">&quot;My Scenario&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">exec</span><span class="o">(</span><span class="n">http</span><span class="o">(</span><span class="s">&quot;Get Homepage&quot;</span><span class="o">).</span><span class="n">get</span><span class="o">(</span><span class="s">&quot;http://github.com/gatling/gatling&quot;</span><span class="o">))</span>
+</pre></div>
+</div>
+<p id="scenario-exec-session-expression"><code class="docutils literal"><span class="pre">exec</span></code> can also be passed an <a class="reference internal" href="../session/expression_el.html#expression"><span class="std std-ref">Expression</span></a> function.</p>
+<p>This can be used for manually debugging or editing the <a class="reference internal" href="../session/expression_el.html#expression"><span class="std std-ref">Session</span></a>, e.g.:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">exec</span> <span class="o">{</span> <span class="n">session</span> <span class="k">=&gt;</span>
+  <span class="c1">// displays the content of the session in the console (debugging only)</span>
+  <span class="n">println</span><span class="o">(</span><span class="n">session</span><span class="o">)</span>
+
+  <span class="c1">// return the original session</span>
+  <span class="n">session</span>
+<span class="o">}</span>
+
+<span class="n">exec</span> <span class="o">{</span> <span class="n">session</span> <span class="k">=&gt;</span>
+  <span class="c1">// return a new session instance with a new &quot;foo&quot; attribute whose value is &quot;bar&quot;</span>
+  <span class="n">session</span><span class="o">.</span><span class="n">set</span><span class="o">(</span><span class="s">&quot;foo&quot;</span><span class="o">,</span> <span class="s">&quot;bar&quot;</span><span class="o">)</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">For those who wonder how the plumbing works and how you can return a <code class="docutils literal"><span class="pre">Session</span></code> instead of <code class="docutils literal"><span class="pre">Validation[Session]</span></code> in the above examples,
+that’s thanks to an implicit conversion.</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Gatling DSL components are immutable <code class="docutils literal"><span class="pre">ActionBuilder</span></code>(s) that have to be chained altogether and are only built once on startup.
+The results is a workflow chain of <code class="docutils literal"><span class="pre">Action</span></code>(s).
+These builders don’t do anything by themselves, they don’t trigger any side effect, they are just definitions.
+As a result, creating such DSL components at runtime in functions is completely meaningless.
+If you want conditional paths in your execution flow, use the proper DSL components (<code class="docutils literal"><span class="pre">doIf</span></code>, <code class="docutils literal"><span class="pre">randomSwitch</span></code>, etc)</p>
+</div>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">exec</span> <span class="o">{</span> <span class="n">session</span> <span class="k">=&gt;</span>
+
+  <span class="k">if</span> <span class="o">(</span><span class="n">someSessionBasedCondition</span><span class="o">(</span><span class="n">session</span><span class="o">))</span> <span class="o">{</span>
+    <span class="c1">// just create a builder that is immediately discarded, hence doesn&#39;t do anything</span>
+    <span class="c1">// you should be using a doIf here</span>
+    <span class="n">http</span><span class="o">(</span><span class="s">&quot;Get Homepage&quot;</span><span class="o">).</span><span class="n">get</span><span class="o">(</span><span class="s">&quot;http://github.com/gatling/gatling&quot;</span><span class="o">)</span>
+  <span class="o">}</span>
+  <span class="n">session</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p id="scenario-exec-function-flatten"><code class="docutils literal"><span class="pre">flattenMapIntoAttributes</span></code> is a built-in Session Expression as mentioned above.</p>
+<p>It exposes the content of a Map into attributes, e.g.:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="c1">// assuming the Session contains an attribute named &quot;theMap&quot; whose content is :</span>
+<span class="c1">// Map(&quot;foo&quot; -&gt; &quot;bar&quot;, &quot;baz&quot; -&gt; &quot;qix&quot;)</span>
+
+<span class="n">exec</span><span class="o">(</span><span class="n">flattenMapIntoAttributes</span><span class="o">(</span><span class="s">&quot;${theMap}&quot;</span><span class="o">))</span>
+
+<span class="c1">// the Session contains 2 new attributes &quot;foo&quot; and &quot;baz&quot;.</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="pause">
+<h3>Pause<a class="headerlink" href="#pause" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="scenario-pause">
+<span id="id2"></span><h4><code class="docutils literal"><span class="pre">pause</span></code><a class="headerlink" href="#scenario-pause" title="Permalink to this headline">¶</a></h4>
+<p>When a user sees a page he/she often reads what is shown and then chooses to click on another link.
+To reproduce this behavior, the pause method is used.</p>
+<p>There are several ways of using it:</p>
+<ul class="simple">
+<li>Fixed pause duration:<ul>
+<li><code class="docutils literal"><span class="pre">pause(duration:</span> <span class="pre">Duration)</span></code></li>
+<li><code class="docutils literal"><span class="pre">pause(duration:</span> <span class="pre">String,</span> <span class="pre">unit:</span> <span class="pre">TimeUnit</span> <span class="pre">=</span> <span class="pre">TimeUnit.SECONDS)</span></code></li>
+<li><code class="docutils literal"><span class="pre">pause(duration:</span> <span class="pre">Expression[Duration])</span></code></li>
+</ul>
+</li>
+<li>Uniform random pause duration:<ul>
+<li><code class="docutils literal"><span class="pre">pause(min:</span> <span class="pre">Duration,</span> <span class="pre">max:</span> <span class="pre">Duration)</span></code></li>
+<li><code class="docutils literal"><span class="pre">pause(min:</span> <span class="pre">String,</span> <span class="pre">max:</span> <span class="pre">String,</span> <span class="pre">unit:</span> <span class="pre">TimeUnit)</span></code></li>
+<li><code class="docutils literal"><span class="pre">pause(min:</span> <span class="pre">Expression[Duration],</span> <span class="pre">max:</span> <span class="pre">Expression[Duration])</span></code></li>
+</ul>
+</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">All those methods also have an optional force parameter that overrides the pause type defined in the set up.
+Possible values are the <a class="reference internal" href="simulation_setup.html#simulation-setup-pause"><span class="std std-ref">same ones than for global definition</span></a>.</p>
+</div>
+</div>
+<div class="section" id="pace">
+<span id="scenario-pace"></span><h4><code class="docutils literal"><span class="pre">pace</span></code><a class="headerlink" href="#pace" title="Permalink to this headline">¶</a></h4>
+<p>If you want to control how frequently an action is executed, to target <em>iterations per hour</em> type volumes.
+Gatling support a dedicated type of pause: <code class="docutils literal"><span class="pre">pace</span></code>, which adjusts its wait time depending on how long the chained action took.
+E.g.:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">forever</span><span class="o">(</span>
+  <span class="n">pace</span><span class="o">(</span><span class="mi">5</span> <span class="n">seconds</span><span class="o">)</span>
+    <span class="o">.</span><span class="n">exec</span><span class="o">(</span>
+      <span class="n">pause</span><span class="o">(</span><span class="mi">1</span> <span class="n">second</span><span class="o">,</span> <span class="mi">4</span> <span class="n">seconds</span><span class="o">)</span> <span class="c1">// Will be run every 5 seconds, irrespective of what pause time is used</span>
+    <span class="o">)</span>
+<span class="o">)</span>
+</pre></div>
+</div>
+<p>There are several ways of using it:</p>
+<ul class="simple">
+<li>Fixed pace duration:<ul>
+<li><code class="docutils literal"><span class="pre">pace(duration:</span> <span class="pre">Duration)</span></code></li>
+<li><code class="docutils literal"><span class="pre">pace(duration:</span> <span class="pre">String,</span> <span class="pre">unit:</span> <span class="pre">TimeUnit</span> <span class="pre">=</span> <span class="pre">TimeUnit.SECONDS)</span></code></li>
+<li><code class="docutils literal"><span class="pre">pace(duration:</span> <span class="pre">Expression[Duration])</span></code></li>
+</ul>
+</li>
+<li>Uniform random pace duration:<ul>
+<li><code class="docutils literal"><span class="pre">pace(min:</span> <span class="pre">Duration,</span> <span class="pre">max:</span> <span class="pre">Duration)</span></code></li>
+<li><code class="docutils literal"><span class="pre">pace(min:</span> <span class="pre">String,</span> <span class="pre">max:</span> <span class="pre">String,</span> <span class="pre">unit:</span> <span class="pre">TimeUnit)</span></code></li>
+<li><code class="docutils literal"><span class="pre">pace(min:</span> <span class="pre">Expression[Duration],</span> <span class="pre">max:</span> <span class="pre">Expression[Duration])</span></code></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="rendezvous">
+<span id="scenario-rendez-vous"></span><h4><code class="docutils literal"><span class="pre">rendezVous</span></code><a class="headerlink" href="#rendezvous" title="Permalink to this headline">¶</a></h4>
+<p>In some cases, you may want to run some requests, then pause users until all other users have reached a <em>rendez-vous point</em>.
+For this purpose Gatling has the <code class="docutils literal"><span class="pre">rendezVous(users:</span> <span class="pre">Int)</span></code> method which takes the number of users to wait.</p>
+</div>
+</div>
+<div class="section" id="loop-statements">
+<span id="scenario-loops"></span><h3>Loop statements<a class="headerlink" href="#loop-statements" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="repeat">
+<span id="scenario-repeat"></span><h4><code class="docutils literal"><span class="pre">repeat</span></code><a class="headerlink" href="#repeat" title="Permalink to this headline">¶</a></h4>
+<p>Repeat the loop a specified amount of times.</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">repeat</span><span class="o">(</span><span class="n">times</span><span class="o">,</span> <span class="n">counterName</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">myChain</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p><em>times</em> can be an Int, an EL string pointing to an Int Session attribute, or an <code class="docutils literal"><span class="pre">Expression[Int]</span></code>.</p>
+<p><em>counterName</em> is optional and can be used to force the name of the loop counter.
+Current value can be retrieved on the Session as an attribute with a <em>counterName</em> name.</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">repeat</span><span class="o">(</span><span class="mi">20</span><span class="o">)</span> <span class="o">{</span><span class="n">myChain</span><span class="o">}</span>     <span class="c1">// will loop on myChain 20 times</span>
+<span class="n">repeat</span><span class="o">(</span><span class="s">&quot;${myKey}&quot;</span><span class="o">)</span> <span class="o">{</span><span class="n">myChain</span><span class="o">}</span>    <span class="c1">// will loop on myChain (Int value of the Session attribute myKey) times</span>
+<span class="n">repeat</span><span class="o">(</span><span class="n">session</span> <span class="k">=&gt;</span> <span class="n">session</span><span class="o">(</span><span class="s">&quot;foo&quot;</span><span class="o">).</span><span class="n">as</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="cm">/* or anything that returns an Int*/</span><span class="o">)</span> <span class="o">{</span><span class="n">myChain</span><span class="o">}</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Don’t forget that the counter starts at 0!</p>
+</div>
+</div>
+<div class="section" id="foreach">
+<span id="scenario-foreach"></span><h4><code class="docutils literal"><span class="pre">foreach</span></code><a class="headerlink" href="#foreach" title="Permalink to this headline">¶</a></h4>
+<p>Repeat the loop for each element in the specified sequence.</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">foreach</span><span class="o">(</span><span class="n">sequenceName</span><span class="o">,</span> <span class="n">elementName</span><span class="o">,</span> <span class="n">counterName</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">myChain</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p><em>sequenceName</em> can be a sequence, an EL string pointing to a <code class="docutils literal"><span class="pre">Seq[Any]</span></code> Session attribute, or an <code class="docutils literal"><span class="pre">Expression[Seq[Any]]</span></code></p>
+<p><em>elementName</em> is a the name of the Session attribute that will hold the current element.</p>
+<p><em>counterName</em> is optional.</p>
+</div>
+<div class="section" id="during">
+<span id="scenario-during"></span><h4><code class="docutils literal"><span class="pre">during</span></code><a class="headerlink" href="#during" title="Permalink to this headline">¶</a></h4>
+<p>Iterate over the loop during the specified amount of time.</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">during</span><span class="o">(</span><span class="n">duration</span><span class="o">,</span> <span class="n">counterName</span><span class="o">,</span> <span class="n">exitASAP</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">myChain</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p><em>duration</em> can be an Int for a duration in seconds, or a duration expressed like 500 milliseconds.</p>
+<p><em>counterName</em> is optional.</p>
+<p><em>exitASAP</em> is optional and defaults to true. If true, the condition will be evaluated for each element inside the loop, possibly causing to exit before reaching the end of the iteration.</p>
+</div>
+<div class="section" id="aslongas">
+<span id="scenario-aslongas"></span><h4><code class="docutils literal"><span class="pre">asLongAs</span></code><a class="headerlink" href="#aslongas" title="Permalink to this headline">¶</a></h4>
+<p>Iterate over the loop as long as the condition is satisfied.</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">asLongAs</span><span class="o">(</span><span class="n">condition</span><span class="o">,</span> <span class="n">counterName</span><span class="o">,</span> <span class="n">exitASAP</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">myChain</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p><em>condition</em> is a session function that returns a boolean.</p>
+<p><em>counterName</em> is optional.</p>
+<p><em>exitASAP</em> is optional and defaults to false. If true, the condition will be evaluated for each element inside the loop, possibly causing to exit before reaching the end of the iteration.</p>
+</div>
+<div class="section" id="dowhile">
+<span id="scenario-dowhile"></span><h4><code class="docutils literal"><span class="pre">doWhile</span></code><a class="headerlink" href="#dowhile" title="Permalink to this headline">¶</a></h4>
+<p>Similar to <code class="docutils literal"><span class="pre">asLongAs</span></code> but the condition is evaluated after the loop.</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">doWhile</span><span class="o">(</span><span class="n">condition</span><span class="o">,</span> <span class="n">counterName</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">myChain</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p><em>condition</em> is a session function that returns a boolean.</p>
+<p><em>counterName</em> is optional.</p>
+</div>
+<div class="section" id="forever">
+<span id="scenario-forever"></span><h4><code class="docutils literal"><span class="pre">forever</span></code><a class="headerlink" href="#forever" title="Permalink to this headline">¶</a></h4>
+<p>Iterate over the loop forever.</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">forever</span><span class="o">(</span><span class="n">counterName</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">myChain</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p><em>counterName</em> is optional.</p>
+</div>
+</div>
+<div class="section" id="conditional-statements">
+<span id="scenario-conditions"></span><h3>Conditional statements<a class="headerlink" href="#conditional-statements" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="doif">
+<span id="scenario-doif"></span><h4><code class="docutils literal"><span class="pre">doIf</span></code><a class="headerlink" href="#doif" title="Permalink to this headline">¶</a></h4>
+<p>Gatling’s DSL has conditional execution support.
+If you want to execute a specific chain of actions only when some condition is satisfied, you can do so using the <code class="docutils literal"><span class="pre">doIf</span></code> method.</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">doIf</span><span class="o">(</span><span class="s">&quot;${myBoolean}&quot;</span><span class="o">)</span> <span class="o">{</span>
+  <span class="c1">// executed if the session value stored in &quot;myBoolean&quot; is true</span>
+  <span class="n">exec</span><span class="o">(</span><span class="n">http</span><span class="o">(</span><span class="s">&quot;...&quot;</span><span class="o">).</span><span class="n">get</span><span class="o">(</span><span class="s">&quot;...&quot;</span><span class="o">))</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>If you want to test complex conditions, you’ll have to pass an <code class="docutils literal"><span class="pre">Expression[Boolean]</span></code>:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">doIf</span><span class="o">(</span><span class="n">session</span> <span class="k">=&gt;</span> <span class="n">session</span><span class="o">(</span><span class="s">&quot;myKey&quot;</span><span class="o">).</span><span class="n">as</span><span class="o">[</span><span class="kt">String</span><span class="o">].</span><span class="n">startsWith</span><span class="o">(</span><span class="s">&quot;admin&quot;</span><span class="o">))</span> <span class="o">{</span>
+  <span class="c1">// executed if the session value stored in &quot;myKey&quot; starts with &quot;admin&quot;</span>
+  <span class="n">exec</span><span class="o">(</span><span class="n">http</span><span class="o">(</span><span class="s">&quot;if true&quot;</span><span class="o">).</span><span class="n">get</span><span class="o">(</span><span class="s">&quot;...&quot;</span><span class="o">))</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="doifequals">
+<span id="scenario-doifequals"></span><h4><code class="docutils literal"><span class="pre">doIfEquals</span></code><a class="headerlink" href="#doifequals" title="Permalink to this headline">¶</a></h4>
+<p>Îf your test condition is simply to compare two values, you can simply use <code class="docutils literal"><span class="pre">doIfEquals</span></code>:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">doIfEquals</span><span class="o">(</span><span class="s">&quot;${actualValue}&quot;</span><span class="o">,</span> <span class="s">&quot;expectedValue&quot;</span><span class="o">)</span> <span class="o">{</span>
+  <span class="c1">// executed if the session value stored in &quot;actualValue&quot; is equal to &quot;expectedValue&quot;</span>
+  <span class="n">exec</span><span class="o">(</span><span class="n">http</span><span class="o">(</span><span class="s">&quot;...&quot;</span><span class="o">).</span><span class="n">get</span><span class="o">(</span><span class="s">&quot;...&quot;</span><span class="o">))</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="doiforelse">
+<span id="scenario-doiforelse"></span><h4><code class="docutils literal"><span class="pre">doIfOrElse</span></code><a class="headerlink" href="#doiforelse" title="Permalink to this headline">¶</a></h4>
+<p>Similar to <code class="docutils literal"><span class="pre">doIf</span></code>, but with a fallback if the condition evaluates to false.</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">doIfOrElse</span><span class="o">(</span><span class="n">session</span> <span class="k">=&gt;</span> <span class="n">session</span><span class="o">(</span><span class="s">&quot;myKey&quot;</span><span class="o">).</span><span class="n">as</span><span class="o">[</span><span class="kt">String</span><span class="o">].</span><span class="n">startsWith</span><span class="o">(</span><span class="s">&quot;admin&quot;</span><span class="o">))</span> <span class="o">{</span>
+  <span class="c1">// executed if the session value stored in &quot;myKey&quot; starts with &quot;admin&quot;</span>
+  <span class="n">exec</span><span class="o">(</span><span class="n">http</span><span class="o">(</span><span class="s">&quot;if true&quot;</span><span class="o">).</span><span class="n">get</span><span class="o">(</span><span class="s">&quot;...&quot;</span><span class="o">))</span>
+<span class="o">}</span> <span class="o">{</span>
+  <span class="c1">// executed if the session value stored in &quot;myKey&quot; does not start with &quot;admin&quot;</span>
+  <span class="n">exec</span><span class="o">(</span><span class="n">http</span><span class="o">(</span><span class="s">&quot;if false&quot;</span><span class="o">).</span><span class="n">get</span><span class="o">(</span><span class="s">&quot;...&quot;</span><span class="o">))</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last"><code class="docutils literal"><span class="pre">doIfOrElse</span></code> only takes an <code class="docutils literal"><span class="pre">Expression[Boolean]</span></code>, not the key/value signature.</p>
+</div>
+</div>
+<div class="section" id="doifequalsorelse">
+<span id="scenario-doifequalsorelse"></span><h4><code class="docutils literal"><span class="pre">doIfEqualsOrElse</span></code><a class="headerlink" href="#doifequalsorelse" title="Permalink to this headline">¶</a></h4>
+<p>Similar to <code class="docutils literal"><span class="pre">doIfEquals</span></code> but with a fallback if the condition evaluates to false.</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">doIfEqualsOrElse</span><span class="o">(</span><span class="n">session</span> <span class="k">=&gt;</span> <span class="n">session</span><span class="o">(</span><span class="s">&quot;actualValue&quot;</span><span class="o">).</span><span class="n">as</span><span class="o">[</span><span class="kt">String</span><span class="o">],</span> <span class="s">&quot;expectedValue&quot;</span><span class="o">)</span> <span class="o">{</span>
+  <span class="c1">// executed if the session value stored in &quot;actualValue&quot; equals to &quot;expectedValue&quot;</span>
+  <span class="n">exec</span><span class="o">(</span><span class="n">http</span><span class="o">(</span><span class="s">&quot;if true&quot;</span><span class="o">).</span><span class="n">get</span><span class="o">(</span><span class="s">&quot;...&quot;</span><span class="o">))</span>
+<span class="o">}</span> <span class="o">{</span>
+  <span class="c1">// executed if the session value stored in &quot;actualValue&quot; is not equal to &quot;expectedValue&quot;</span>
+  <span class="n">exec</span><span class="o">(</span><span class="n">http</span><span class="o">(</span><span class="s">&quot;if false&quot;</span><span class="o">).</span><span class="n">get</span><span class="o">(</span><span class="s">&quot;...&quot;</span><span class="o">))</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="doswitch">
+<span id="scenario-doswitch"></span><h4><code class="docutils literal"><span class="pre">doSwitch</span></code><a class="headerlink" href="#doswitch" title="Permalink to this headline">¶</a></h4>
+<p>Add a switch in the chain. Every possible sub-chain is defined with a key.
+Switch is selected through the matching of a key with the evaluation of the passed expression.
+If no switch is selected, the switch is bypassed.</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">doSwitch</span><span class="o">(</span><span class="s">&quot;${myKey}&quot;</span><span class="o">)</span> <span class="o">(</span> <span class="c1">// beware: use parentheses, not curly braces!</span>
+  <span class="n">key1</span> <span class="o">-&gt;</span> <span class="n">chain1</span><span class="o">,</span>
+  <span class="n">key1</span><span class="o">-&gt;</span> <span class="n">chain2</span>
+<span class="o">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="doswitchorelse">
+<span id="scenario-doswitchorelse"></span><h4><code class="docutils literal"><span class="pre">doSwitchOrElse</span></code><a class="headerlink" href="#doswitchorelse" title="Permalink to this headline">¶</a></h4>
+<p>Similar to <code class="docutils literal"><span class="pre">doSwitch</span></code>, but with a fallback if no switch is selected.</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">doSwitchOrElse</span><span class="o">(</span><span class="s">&quot;${myKey}&quot;</span><span class="o">)</span> <span class="o">(</span> <span class="c1">// beware: use parentheses, not curly braces!</span>
+  <span class="n">key1</span> <span class="o">-&gt;</span> <span class="n">chain1</span><span class="o">,</span>
+  <span class="n">key1</span><span class="o">-&gt;</span> <span class="n">chain2</span>
+<span class="o">)</span> <span class="o">(</span>
+  <span class="n">myFallbackChain</span>
+<span class="o">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="randomswitch">
+<span id="scenario-randomswitch"></span><h4><code class="docutils literal"><span class="pre">randomSwitch</span></code><a class="headerlink" href="#randomswitch" title="Permalink to this headline">¶</a></h4>
+<p><code class="docutils literal"><span class="pre">randomSwitch</span></code> can be used to emulate simple Markov chains.
+Simple means cyclic graphs are not currently supported.</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">randomSwitch</span><span class="o">(</span> <span class="c1">// beware: use parentheses, not curly braces!</span>
+  <span class="n">percentage1</span> <span class="o">-&gt;</span> <span class="n">chain1</span><span class="o">,</span>
+  <span class="n">percentage2</span> <span class="o">-&gt;</span> <span class="n">chain2</span>
+<span class="o">)</span>
+</pre></div>
+</div>
+<p>Percentages sum can’t exceed 100%.
+If sum is less than 100%, users that won’t fall into one of the chains will simply exit the switch and continue.
+Once users are done with the switch, they simply continue with the rest of the scenario.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Percentages should be format as following: 50% -&gt; 50, 33.3% -&gt; 33.3 and so on.</p>
+</div>
+</div>
+<div class="section" id="randomswitchorelse">
+<span id="scenario-randomswitchorelse"></span><h4><code class="docutils literal"><span class="pre">randomSwitchOrElse</span></code><a class="headerlink" href="#randomswitchorelse" title="Permalink to this headline">¶</a></h4>
+<p>Similar to <code class="docutils literal"><span class="pre">randomSwitch</span></code>, but with a fallback if no switch is selected (i.e.: random number exceeds percentages sum).</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">randomSwitchOrElse</span><span class="o">(</span> <span class="c1">// beware: use parentheses, not curly braces!</span>
+  <span class="n">percentage1</span> <span class="o">-&gt;</span> <span class="n">chain1</span><span class="o">,</span>
+  <span class="n">percentage2</span> <span class="o">-&gt;</span> <span class="n">chain2</span>
+<span class="o">)</span> <span class="o">{</span>
+  <span class="n">myFallbackChain</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="uniformrandomswitch">
+<span id="scenario-uniformrandomswitch"></span><h4><code class="docutils literal"><span class="pre">uniformRandomSwitch</span></code><a class="headerlink" href="#uniformrandomswitch" title="Permalink to this headline">¶</a></h4>
+<p>Similar to <code class="docutils literal"><span class="pre">randomSwitch</span></code>, but with an uniform distribution amongst chains.</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">uniformRandomSwitch</span><span class="o">(</span> <span class="c1">// beware: use parentheses, not curly braces!</span>
+  <span class="n">chain1</span><span class="o">,</span>
+  <span class="n">chain2</span>
+<span class="o">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="roundrobinswitch">
+<span id="scenario-roundrobinswitch"></span><h4><code class="docutils literal"><span class="pre">roundRobinSwitch</span></code><a class="headerlink" href="#roundrobinswitch" title="Permalink to this headline">¶</a></h4>
+<p>Similar to <code class="docutils literal"><span class="pre">randomSwitch</span></code>, but dispatch uses a round-robin strategy.</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">roundRobinSwitch</span><span class="o">(</span> <span class="c1">// beware: use parentheses, not curly braces!</span>
+  <span class="n">chain1</span><span class="o">,</span>
+  <span class="n">chain2</span>
+<span class="o">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="error-management">
+<span id="scenario-errors"></span><h3>Error management<a class="headerlink" href="#error-management" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="trymax">
+<span id="scenario-trymax"></span><h4><code class="docutils literal"><span class="pre">tryMax</span></code><a class="headerlink" href="#trymax" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">tryMax</span><span class="o">(</span><span class="n">times</span><span class="o">,</span> <span class="n">counterName</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">myChain</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p><em>myChain</em> is expected to succeed as a whole.
+If an error happens (a technical exception such as a timeout, or a failed check), the user will bypass the rest of the chain and start over from the beginning.</p>
+<p><em>times</em> is the maximum number of attempts.</p>
+<p><em>counterName</em> is optional.</p>
+</div>
+<div class="section" id="exitblockonfail">
+<span id="scenario-exitblockonfail"></span><h4><code class="docutils literal"><span class="pre">exitBlockOnFail</span></code><a class="headerlink" href="#exitblockonfail" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">exitBlockOnFail</span> <span class="o">{</span>
+  <span class="n">myChain</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>Quite similar to tryMax, but without looping on failure.</p>
+</div>
+<div class="section" id="exithereiffailed">
+<span id="scenario-exithereiffailed"></span><h4><code class="docutils literal"><span class="pre">exitHereIfFailed</span></code><a class="headerlink" href="#exithereiffailed" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">exitHereIfFailed</span>
+</pre></div>
+</div>
+<p>Make the user exit the scenario from this point if it previously had an error.</p>
+</div>
+</div>
+<div class="section" id="groups-definition">
+<span id="scenario-groups"></span><h3>Groups definition<a class="headerlink" href="#groups-definition" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">group</span><span class="o">(</span><span class="n">groupName</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">myChain</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>Create group of requests to model process or requests in a same page.
+Groups can be nested.
+Beware that group names mustn’t contain commas.</p>
+</div>
+</div>
+<div class="section" id="protocol-definition">
+<span id="scenario-protocols"></span><h2>Protocol definition<a class="headerlink" href="#protocol-definition" title="Permalink to this headline">¶</a></h2>
+<p>You can configure protocols at scenario level with <code class="docutils literal"><span class="pre">protocols</span></code> method:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">scn</span><span class="o">.</span><span class="n">inject</span><span class="o">(</span><span class="n">atOnceUsers</span><span class="o">(</span><span class="mi">5</span><span class="o">)).</span><span class="n">protocols</span><span class="o">(</span><span class="n">httpConf</span><span class="o">)</span>
+</pre></div>
+</div>
+<p>See the dedicated section for http protocol definition <a class="reference internal" href="../http/http_protocol.html#http-protocol"><span class="std std-ref">here</span></a>.</p>
+</div>
+<div class="section" id="pause-definition">
+<span id="scenario-pause-def"></span><h2>Pause definition<a class="headerlink" href="#pause-definition" title="Permalink to this headline">¶</a></h2>
+<p>You can configure pause definition at scenario level, see <a class="reference internal" href="simulation_setup.html#simulation-setup-pause"><span class="std std-ref">here</span></a> for more information.</p>
+</div>
+<div class="section" id="throttling">
+<span id="scenario-throttling"></span><h2>Throttling<a class="headerlink" href="#throttling" title="Permalink to this headline">¶</a></h2>
+<p>You can also configure throttling at scenario level with <code class="docutils literal"><span class="pre">throttle</span></code> method.</p>
+<p>This way, you can configure different throttling profiles for different scenarios running in the same simulation.</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">scn</span><span class="o">.</span><span class="n">inject</span><span class="o">(</span><span class="n">rampUsers</span><span class="o">(</span><span class="mi">500</span><span class="o">)</span> <span class="n">over</span> <span class="o">(</span><span class="mi">10</span> <span class="n">minutes</span><span class="o">)).</span><span class="n">throttle</span><span class="o">(</span><span class="n">reachRps</span><span class="o">(</span><span class="mi">100</span><span class="o">)</span> <span class="n">in</span> <span class="o">(</span><span class="mi">10</span> <span class="n">seconds</span><span class="o">),</span> <span class="n">holdFor</span><span class="o">(</span><span class="mi">10</span> <span class="n">minutes</span><span class="o">))</span>
+</pre></div>
+</div>
+<p>For further information see the dedicated section <a class="reference internal" href="simulation_setup.html#simulation-setup-throttling"><span class="std std-ref">here</span></a>.</p>
+</div>
+</div>
+
+          
+        </div>
+      </article>
+    </main>
+  </div>
+</div>
+
+
+<div class="sidebar-wrap col-md-3 content-left-wrap">
+  <div id="secondary" class="widget-area" role="complementary" itemscope="itemscope"
+       itemtype="http://schema.org/WPSideBar">
+    <aside id="search-2" class="widget widget_search">
+      <form role="form" method="get" class="search-form" action="../search.html">
+        <label>
+          <span class="screen-reader-text">Search through the documentation&nbsp;:</span>
+          <input type="search" class="search-field" placeholder="Search the documentation" name="q">
+        </label>
+        <input type="submit" class="search-submit" value="Search">
+      </form>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Table of Content</h1>
+      <ul>
+<li><a class="reference internal" href="#">Scenario</a><ul>
+<li><a class="reference internal" href="#bootstrapping">Bootstrapping</a></li>
+<li><a class="reference internal" href="#structure-elements">Structure elements</a><ul>
+<li><a class="reference internal" href="#exec">Exec</a></li>
+<li><a class="reference internal" href="#pause">Pause</a></li>
+<li><a class="reference internal" href="#loop-statements">Loop statements</a></li>
+<li><a class="reference internal" href="#conditional-statements">Conditional statements</a></li>
+<li><a class="reference internal" href="#error-management">Error management</a></li>
+<li><a class="reference internal" href="#groups-definition">Groups definition</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#protocol-definition">Protocol definition</a></li>
+<li><a class="reference internal" href="#pause-definition">Pause definition</a></li>
+<li><a class="reference internal" href="#throttling">Throttling</a></li>
+</ul>
+</li>
+</ul>
+
+    </aside>
+    
+    <aside class="widget">
+      <h1 class="widget-title">Previous topic</h1>
+      <ul>
+        <li>
+          <a href="simulation_setup.html" title="Previous Chapter: Simulation setup">
+            Simulation setup
+          </a>
+        </li>
+      </ul>
+    </aside>
+    
+    
+    <aside class="widget">
+      <h1 class="widget-title">Next topic</h1>
+      <ul>
+        <li>
+          <a href="assertions.html" title="Next Chapter: Assertions">
+            Assertions
+          </a>
+        </li>
+      </ul>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Contribute</h1>
+      <ul>
+        <li>
+          <a href="https://github.com/gatling/gatling/edit/master/src/sphinx/general/scenario.rst">Edit this page on Github</a>
+        </li>
+      </ul>
+    </aside>
+  </div>
+</div>
+
+
+
+
+

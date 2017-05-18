@@ -1,0 +1,181 @@
+
+
+<ol class="breadcrumb">
+  <li><a href="../index.html">Gatling documentation</a></li>
+  <li><a href="index.html" accesskey="U">
+    Migration guides
+    </a>
+  </li>
+  <li><a href="">
+    Migrating from 2.1 to 2.2
+  </a></li>
+</ol>
+
+<div class="content-left-wrap col-md-9">
+  <div id="primary" class="content-area">
+    <main itemscope="" itemtype="http://schema.org/WebPageElement" itemprop="mainContentOfPage" id="main"
+          class="site-main">
+      <article id="documentation" class="type-post status-publish format-standard hentry category-non-classe">
+        <header class="entry-header">
+          <h1 class="entry-title" itemprop="headline">Migrating from 2.1 to 2.2</h1>
+        </header>
+        <div class="entry-content" itemprop="text">
+          
+          <div class="section" id="migrating-from-2-1-to-2-2">
+<span id="to-2-2"></span>
+<div class="section" id="jdk8">
+<h2>JDK8<a class="headerlink" href="#jdk8" title="Permalink to this headline">¶</a></h2>
+<p>We’ve dropped support for JDK7 and now require JDK8.</p>
+</div>
+<div class="section" id="global-changes">
+<h2>Global changes<a class="headerlink" href="#global-changes" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first">The format of a few configuration properties in gatling.conf has changed and must be updated to its new form.</p>
+<p>Where the values took the form <code class="docutils literal"><span class="pre">&quot;value1,</span> <span class="pre">value2,</span> <span class="pre">value3&quot;</span></code>, it must be changed to : <code class="docutils literal"><span class="pre">[value1,</span> <span class="pre">value2,</span> <span class="pre">value3]</span></code>.</p>
+<p>This impacts three configuration properties :</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">gatling.http.ahc.httpsEnabledProtocols</span></code> : by default <code class="docutils literal"><span class="pre">&quot;&quot;</span></code>, now <code class="docutils literal"><span class="pre">[]</span></code></li>
+<li><code class="docutils literal"><span class="pre">gatling.http.ahc.httpsEnabledCipherSuites</span></code> : by default <code class="docutils literal"><span class="pre">&quot;&quot;</span></code>, now <code class="docutils literal"><span class="pre">[]</span></code></li>
+<li><code class="docutils literal"><span class="pre">gatling.data.writers</span></code> : by default <code class="docutils literal"><span class="pre">&quot;console,</span> <span class="pre">file&quot;</span></code>, now <code class="docutils literal"><span class="pre">[console,</span> <span class="pre">file]</span></code></li>
+</ul>
+</li>
+<li><p class="first">Some configuration options have been renamed or dropped, please check the logs or update to a fresh gatling.config file copy.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="core">
+<h2>Core<a class="headerlink" href="#core" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal"><span class="pre">doIf(actual,</span> <span class="pre">expected)</span></code> that only execute wrapped block when <code class="docutils literal"><span class="pre">actual</span></code> evaluates to <code class="docutils literal"><span class="pre">expected</span></code> was renamed into
+<code class="docutils literal"><span class="pre">doIfEquals</span></code> for clarity and consistency.</p>
+</div>
+<div class="section" id="pauses">
+<h2>Pauses<a class="headerlink" href="#pauses" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal"><span class="pre">normalPauses(stdDev:</span> <span class="pre">Double)</span></code> was confusing and was replaced by
+<code class="docutils literal"><span class="pre">normalPausesWithPercentageDuration(stdDev:</span> <span class="pre">Double)</span></code> and <code class="docutils literal"><span class="pre">normalPausesWithStdDevDuration(stdDev:</span> <span class="pre">Duration)</span></code></p>
+</div>
+<div class="section" id="http">
+<h2>HTTP<a class="headerlink" href="#http" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="protocol">
+<h3>Protocol<a class="headerlink" href="#protocol" title="Permalink to this headline">¶</a></h3>
+<p>A typo was fixed and <code class="docutils literal"><span class="pre">connection</span></code> was renamed into <code class="docutils literal"><span class="pre">connectionHeader</span></code>.</p>
+</div>
+<div class="section" id="elfilebody">
+<h3>ElFileBody<a class="headerlink" href="#elfilebody" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal"><span class="pre">ELFileBody</span></code> has been renamed to <code class="docutils literal"><span class="pre">ElFileBody</span></code>.</p>
+</div>
+<div class="section" id="cookie">
+<h3>Cookie<a class="headerlink" href="#cookie" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal"><span class="pre">Cookie.withExpires</span></code> was dropped, as it would be very cumbersome to compute and pass a date.
+Use <cite>Cookie.withMaxAge</cite> instead.</p>
+</div>
+<div class="section" id="check">
+<h3>Check<a class="headerlink" href="#check" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal"><span class="pre">latencyInMillis</span></code> was dropped, as this metric (time between last byte sent and first by received)
+didn’t make sense for most people and only brought confusion.`</p>
+</div>
+<div class="section" id="local-address">
+<h3>Local Address<a class="headerlink" href="#local-address" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal"><span class="pre">localAddress</span></code> is now only available at HTTP protocol level, not request, and take one or many Strings,
+instead of a single <cite>Expression[InetAddress]`</cite>.</p>
+</div>
+</div>
+<div class="section" id="reports">
+<h2>Reports<a class="headerlink" href="#reports" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal"><span class="pre">latency</span></code> charts were dropped, as this metric (time between last byte sent and first by received)
+didn’t make sense for most people and only brought confusion.</p>
+</div>
+<div class="section" id="maven-plugin">
+<h2>Maven Plugin<a class="headerlink" href="#maven-plugin" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal"><span class="pre">execute</span></code> task is now deprecated and will be removed in a future version.
+Please now use <code class="docutils literal"><span class="pre">test</span></code> and <code class="docutils literal"><span class="pre">integration-test</span></code>.</p>
+<p>Reports files are now generated in <code class="docutils literal"><span class="pre">/target/gatling</span></code> instead of <code class="docutils literal"><span class="pre">/target/results</span></code>.</p>
+</div>
+<div class="section" id="sbt-plugin">
+<h2>SBT Plugin<a class="headerlink" href="#sbt-plugin" title="Permalink to this headline">¶</a></h2>
+<p>In order to not conflict with “standard” tests frameworks, you’re now required to prefix your command with <code class="docutils literal"><span class="pre">gatling:</span></code>,
+e.g. <code class="docutils literal"><span class="pre">gatling:test</span></code> instead of <code class="docutils literal"><span class="pre">test</span></code>.</p>
+</div>
+</div>
+
+          
+        </div>
+      </article>
+    </main>
+  </div>
+</div>
+
+
+<div class="sidebar-wrap col-md-3 content-left-wrap">
+  <div id="secondary" class="widget-area" role="complementary" itemscope="itemscope"
+       itemtype="http://schema.org/WPSideBar">
+    <aside id="search-2" class="widget widget_search">
+      <form role="form" method="get" class="search-form" action="../search.html">
+        <label>
+          <span class="screen-reader-text">Search through the documentation&nbsp;:</span>
+          <input type="search" class="search-field" placeholder="Search the documentation" name="q">
+        </label>
+        <input type="submit" class="search-submit" value="Search">
+      </form>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Table of Content</h1>
+      <ul>
+<li><a class="reference internal" href="#">Migrating from 2.1 to 2.2</a><ul>
+<li><a class="reference internal" href="#jdk8">JDK8</a></li>
+<li><a class="reference internal" href="#global-changes">Global changes</a></li>
+<li><a class="reference internal" href="#core">Core</a></li>
+<li><a class="reference internal" href="#pauses">Pauses</a></li>
+<li><a class="reference internal" href="#http">HTTP</a><ul>
+<li><a class="reference internal" href="#protocol">Protocol</a></li>
+<li><a class="reference internal" href="#elfilebody">ElFileBody</a></li>
+<li><a class="reference internal" href="#cookie">Cookie</a></li>
+<li><a class="reference internal" href="#check">Check</a></li>
+<li><a class="reference internal" href="#local-address">Local Address</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#reports">Reports</a></li>
+<li><a class="reference internal" href="#maven-plugin">Maven Plugin</a></li>
+<li><a class="reference internal" href="#sbt-plugin">SBT Plugin</a></li>
+</ul>
+</li>
+</ul>
+
+    </aside>
+    
+    <aside class="widget">
+      <h1 class="widget-title">Previous topic</h1>
+      <ul>
+        <li>
+          <a href="2.0-to-2.1.html" title="Previous Chapter: Migrating from 2.0 to 2.1">
+            Migrating from 2.0 to 2.1
+          </a>
+        </li>
+      </ul>
+    </aside>
+    
+    
+    <aside class="widget">
+      <h1 class="widget-title">Next topic</h1>
+      <ul>
+        <li>
+          <a href="../quickstart.html" title="Next Chapter: Quickstart">
+            Quickstart
+          </a>
+        </li>
+      </ul>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Contribute</h1>
+      <ul>
+        <li>
+          <a href="https://github.com/gatling/gatling/edit/master/src/sphinx/migration_guides/2.1-to-2.2.rst">Edit this page on Github</a>
+        </li>
+      </ul>
+    </aside>
+  </div>
+</div>
+
+
+
+
+

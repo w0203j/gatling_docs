@@ -1,0 +1,154 @@
+
+
+<ol class="breadcrumb">
+  <li><a href="../index.html">Gatling documentation</a></li>
+  <li><a href="index.html" accesskey="U">
+    Information for Gatling Developers
+    </a>
+  </li>
+  <li><a href="">
+    Documentation Guidelines
+  </a></li>
+</ol>
+
+<div class="content-left-wrap col-md-9">
+  <div id="primary" class="content-area">
+    <main itemscope="" itemtype="http://schema.org/WebPageElement" itemprop="mainContentOfPage" id="main"
+          class="site-main">
+      <article id="documentation" class="type-post status-publish format-standard hentry category-non-classe">
+        <header class="entry-header">
+          <h1 class="entry-title" itemprop="headline">Documentation Guidelines</h1>
+        </header>
+        <div class="entry-content" itemprop="text">
+          
+          <div class="section" id="documentation-guidelines">
+<span id="doc-guidelines"></span>
+<p>Gatling’s documentation is built using <a class="reference external" href="http://sphinx-doc.org/">Sphinx</a>, which relies on the <a class="reference external" href="http://docutils.sourceforge.net/rst.html">reStructuredText markup language</a>.</p>
+<div class="section" id="restructuredtext">
+<h2>reStructuredText<a class="headerlink" href="#restructuredtext" title="Permalink to this headline">¶</a></h2>
+<p>Sphinx documentation provides the <a class="reference external" href="http://sphinx-doc.org/rest.html">reStructuredText Primer</a>, a nice introduction to reST syntax and Sphinx <em>directives</em>.</p>
+<div class="section" id="sections">
+<h3>Sections<a class="headerlink" href="#sections" title="Permalink to this headline">¶</a></h3>
+<p>As reStructuredText allows any scheme for section headings (as long as it’s consistent), the Gatling documentation use the following convention:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">#</span></code> (over and under) for module headings</li>
+<li><code class="docutils literal"><span class="pre">=</span></code> for sections</li>
+<li><code class="docutils literal"><span class="pre">-</span></code> for subsections</li>
+<li><code class="docutils literal"><span class="pre">^</span></code> for subsubsections</li>
+<li><code class="docutils literal"><span class="pre">~</span></code> for subsubsubsections</li>
+</ul>
+</div>
+</div>
+<div class="section" id="building-the-documentation">
+<h2>Building the Documentation<a class="headerlink" href="#building-the-documentation" title="Permalink to this headline">¶</a></h2>
+<p>You’ll need to install Sphinx and some additional Python packages first.</p>
+<div class="section" id="installing-sphinx">
+<h3>Installing Sphinx<a class="headerlink" href="#installing-sphinx" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="linux">
+<h4>Linux<a class="headerlink" href="#linux" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li>Install Python with your distribution’s package manager</li>
+<li>If <code class="docutils literal"><span class="pre">pip</span></code> wasn’t installed along Python, please <a class="reference external" href="http://pip.readthedocs.org/en/latest/installing.html">install it</a></li>
+<li>Install both Sphinx and PIL (<a class="reference external" href="http://www.pythonware.com/products/pil/">Python Imaging Library</a>) using <cite>pip</cite>: <code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">sphinx</span> <span class="pre">PIL</span></code></li>
+</ul>
+</div>
+<div class="section" id="mac-os-x">
+<h4>Mac OS X<a class="headerlink" href="#mac-os-x" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li>Install Python (<cite>pip</cite> is included) using <a class="reference external" href="http://brew.sh/">Homebrew</a> : <code class="docutils literal"><span class="pre">brew</span> <span class="pre">install</span> <span class="pre">python</span></code></li>
+<li>Install both Sphinx and PIL (<a class="reference external" href="http://www.pythonware.com/products/pil/">Python Imaging Library</a>) using <cite>pip</cite>: <code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">sphinx</span> <span class="pre">PIL</span></code></li>
+</ul>
+<p>For other platforms, please refer to <a class="reference external" href="http://sphinx-doc.org/install.html">Sphinx installation guide</a>.</p>
+</div>
+</div>
+<div class="section" id="running-sphinx">
+<h3>Running Sphinx<a class="headerlink" href="#running-sphinx" title="Permalink to this headline">¶</a></h3>
+<p>Gatling relies on the <a class="reference external" href="https://github.com/sbt/sbt-site">sbt-site plugin</a> to manage the Sphinx documentation build.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">sbt</span> <span class="pre">makeSite</span></code> generates the Sphinx documentation in <code class="docutils literal"><span class="pre">&lt;project-dir&gt;/target/sphinx/html/index.html</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">sbt</span> <span class="pre">previewSite</span></code> start a web server at <code class="docutils literal"><span class="pre">localhost:4000</span></code> which points to the documentation’s index.</li>
+</ul>
+</div>
+</div>
+</div>
+
+          
+        </div>
+      </article>
+    </main>
+  </div>
+</div>
+
+
+<div class="sidebar-wrap col-md-3 content-left-wrap">
+  <div id="secondary" class="widget-area" role="complementary" itemscope="itemscope"
+       itemtype="http://schema.org/WPSideBar">
+    <aside id="search-2" class="widget widget_search">
+      <form role="form" method="get" class="search-form" action="../search.html">
+        <label>
+          <span class="screen-reader-text">Search through the documentation&nbsp;:</span>
+          <input type="search" class="search-field" placeholder="Search the documentation" name="q">
+        </label>
+        <input type="submit" class="search-submit" value="Search">
+      </form>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Table of Content</h1>
+      <ul>
+<li><a class="reference internal" href="#">Documentation Guidelines</a><ul>
+<li><a class="reference internal" href="#restructuredtext">reStructuredText</a><ul>
+<li><a class="reference internal" href="#sections">Sections</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#building-the-documentation">Building the Documentation</a><ul>
+<li><a class="reference internal" href="#installing-sphinx">Installing Sphinx</a><ul>
+<li><a class="reference internal" href="#linux">Linux</a></li>
+<li><a class="reference internal" href="#mac-os-x">Mac OS X</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#running-sphinx">Running Sphinx</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    </aside>
+    
+    <aside class="widget">
+      <h1 class="widget-title">Previous topic</h1>
+      <ul>
+        <li>
+          <a href="dev_guidelines.html" title="Previous Chapter: Developer Guidelines">
+            Developer Guidelines
+          </a>
+        </li>
+      </ul>
+    </aside>
+    
+    
+    <aside class="widget">
+      <h1 class="widget-title">Next topic</h1>
+      <ul>
+        <li>
+          <a href="../project/index.html" title="Next Chapter: Project Information">
+            Project Information
+          </a>
+        </li>
+      </ul>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Contribute</h1>
+      <ul>
+        <li>
+          <a href="https://github.com/gatling/gatling/edit/master/src/sphinx/developing_gatling/doc_guidelines.rst">Edit this page on Github</a>
+        </li>
+      </ul>
+    </aside>
+  </div>
+</div>
+
+
+
+
+

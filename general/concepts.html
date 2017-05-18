@@ -1,0 +1,205 @@
+
+
+<ol class="breadcrumb">
+  <li><a href="../index.html">Gatling documentation</a></li>
+  <li><a href="index.html" accesskey="U">
+    General
+    </a>
+  </li>
+  <li><a href="">
+    Concepts
+  </a></li>
+</ol>
+
+<div class="content-left-wrap col-md-9">
+  <div id="primary" class="content-area">
+    <main itemscope="" itemtype="http://schema.org/WebPageElement" itemprop="mainContentOfPage" id="main"
+          class="site-main">
+      <article id="documentation" class="type-post status-publish format-standard hentry category-non-classe">
+        <header class="entry-header">
+          <h1 class="entry-title" itemprop="headline">Concepts</h1>
+        </header>
+        <div class="entry-content" itemprop="text">
+          
+          <div class="section" id="concepts">
+
+<div class="section" id="virtual-user">
+<h2>Virtual User<a class="headerlink" href="#virtual-user" title="Permalink to this headline">¶</a></h2>
+<p>Some load testing tools, such as <a class="reference external" href="http://httpd.apache.org/docs/2.2/programs/ab.html">ab</a>  or <a class="reference external" href="https://github.com/wg/wrk">wrk</a> are very efficient at url bashing, but can’t deal with logic between requests.</p>
+<p>Advanced load testing tools such as Gatling can deal with virtual users, each one having its own data and maybe taking a distinct browsing path.</p>
+<p>Some other tools implement those <em>virtual users</em> as threads. Gatling implements them as messages, which scales much better and can deal easily with thousands of concurrent users.</p>
+</div>
+<div class="section" id="scenario">
+<h2>Scenario<a class="headerlink" href="#scenario" title="Permalink to this headline">¶</a></h2>
+<p>To represent users’ behaviors, testers will have to define scenarios which will be written as scripts given to Gatling.</p>
+<p>These scenarios can be the result of measurements on the running application with analytic tools, or expected users behavior of a new application.
+In any case, the creation of these scenarios is the key to meaningful results of the load test.</p>
+<p>A scenario represents a typical user behavior. It’s a workflow that virtual users will follow.</p>
+<p>For example, a standard e-commerce application scenario could be:</p>
+<ol class="arabic simple">
+<li>Access home page</li>
+<li>Select a browse category</li>
+<li>Make a search in this category</li>
+<li>Open a product description</li>
+<li>Go back</li>
+<li>Open another product description</li>
+<li>Buy product</li>
+<li>Log in</li>
+<li>Checkout</li>
+<li>Payment</li>
+<li>Log out</li>
+</ol>
+<p>Scenarios are represented as scripts in conjunction with a DSL (<a class="reference external" href="http://en.wikipedia.org/wiki/Domain-specific_language">Domain Specific Language</a>).
+This allows fast writing of scenarios and easy maintenance of existing scenarios.</p>
+<p>Here is a simple example of a scenario:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">scenario</span><span class="o">(</span><span class="s">&quot;Standard User&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">exec</span><span class="o">(</span><span class="n">http</span><span class="o">(</span><span class="s">&quot;Access Github&quot;</span><span class="o">).</span><span class="n">get</span><span class="o">(</span><span class="s">&quot;https://github.com&quot;</span><span class="o">))</span>
+  <span class="o">.</span><span class="n">pause</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">exec</span><span class="o">(</span><span class="n">http</span><span class="o">(</span><span class="s">&quot;Search for &#39;gatling&#39;&quot;</span><span class="o">).</span><span class="n">get</span><span class="o">(</span><span class="s">&quot;https://github.com/search?q=gatling&quot;</span><span class="o">))</span>
+  <span class="o">.</span><span class="n">pause</span><span class="o">(</span><span class="mi">2</span><span class="o">)</span>
+</pre></div>
+</div>
+<p>As we can easily guess, this scenario:</p>
+<ul class="simple">
+<li>is named “Standard User”</li>
+<li>contains 2 HTTP Requests</li>
+<li>contains 2 pauses</li>
+</ul>
+<p><em>Pauses</em> are used to simulate user think time.
+When a real user clicks on a link, the page has to be loaded in their browser and they will, most likely, read it and then decide what to do next.</p>
+<p>HTTP requests are actually sent to the application under test when a user clicks on a button or a link.
+Each HTTP Request is easy to grasp (excluding page resources):</p>
+<ol class="arabic simple">
+<li><em>Access Github</em> is a <em>GET</em> request pointing at <em>http://github.com</em></li>
+<li><em>Search for ‘gatling’</em> is a <em>GET</em> request pointing at <em>http://github.com/search?q=gatling</em></li>
+</ol>
+<p>For more information, check the <a class="reference internal" href="scenario.html#scenario"><span class="std std-ref">Scenario reference section</span></a>.</p>
+</div>
+<div class="section" id="simulation">
+<h2>Simulation<a class="headerlink" href="#simulation" title="Permalink to this headline">¶</a></h2>
+<p>A simulation is a description of the load test. It describes how, possibly several, user populations will run: which scenario they will execute and how new virtual users will be injected.</p>
+<p>Here is an example of simulation definition:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">stdUser</span> <span class="k">=</span> <span class="n">scenario</span><span class="o">(</span><span class="s">&quot;Standard User&quot;</span><span class="o">)</span> <span class="c1">// etc..</span>
+<span class="k">val</span> <span class="n">admUser</span> <span class="k">=</span> <span class="n">scenario</span><span class="o">(</span><span class="s">&quot;Admin User&quot;</span><span class="o">)</span> <span class="c1">// etc..</span>
+<span class="k">val</span> <span class="n">advUser</span> <span class="k">=</span> <span class="n">scenario</span><span class="o">(</span><span class="s">&quot;Advanced User&quot;</span><span class="o">)</span> <span class="c1">// etc..</span>
+
+<span class="n">setUp</span><span class="o">(</span>
+  <span class="n">stdUser</span><span class="o">.</span><span class="n">inject</span><span class="o">(</span><span class="n">atOnceUsers</span><span class="o">(</span><span class="mi">2000</span><span class="o">)),</span>
+  <span class="n">admUser</span><span class="o">.</span><span class="n">inject</span><span class="o">(</span><span class="n">nothingFor</span><span class="o">(</span><span class="mi">60</span> <span class="n">seconds</span><span class="o">),</span> <span class="n">rampUsers</span><span class="o">(</span><span class="mi">5</span><span class="o">)</span> <span class="n">over</span> <span class="o">(</span><span class="mi">400</span> <span class="n">seconds</span><span class="o">)),</span>
+  <span class="n">advUser</span><span class="o">.</span><span class="n">inject</span><span class="o">(</span><span class="n">rampUsers</span><span class="o">(</span><span class="mi">500</span><span class="o">)</span> <span class="n">over</span> <span class="o">(</span><span class="mi">200</span> <span class="n">seconds</span><span class="o">))</span>
+<span class="o">)</span>
+</pre></div>
+</div>
+<p>For more information, check the <a class="reference internal" href="simulation_setup.html#simulation-setup"><span class="std std-ref">Simulation Setup reference section</span></a>.</p>
+</div>
+<div class="section" id="session">
+<h2>Session<a class="headerlink" href="#session" title="Permalink to this headline">¶</a></h2>
+<p>Each virtual user is backed by a <em>Session</em>.
+Those <em>Sessions</em> are the actual messages that go down the scenario workflow.
+A <em>Session</em> is basically a state placeholder, where testers can inject or capture and store data.</p>
+<p>For more information, check the <a class="reference internal" href="../session/session_api.html#session"><span class="std std-ref">Session reference section</span></a>.</p>
+</div>
+<div class="section" id="feeders">
+<h2>Feeders<a class="headerlink" href="#feeders" title="Permalink to this headline">¶</a></h2>
+<p>When the tested application offers the possibility to authenticate, tests should take this into consideration and use data to test log in, log out, actions allowed only for certain users, and so on.</p>
+<p>Gatling doesn’t provide tools to generate this test data.</p>
+<p><em>Feeders</em> are a convenient API for testers to inject data from an external source into the virtual users’ sessions.</p>
+<p>For more information, check the <a class="reference internal" href="../session/feeder.html#feeder"><span class="std std-ref">Feeders reference section</span></a>.</p>
+</div>
+<div class="section" id="checks">
+<h2>Checks<a class="headerlink" href="#checks" title="Permalink to this headline">¶</a></h2>
+<p>Each time a request is sent to the server, a response is normally sent, by the server, back to Gatling.</p>
+<p>Gatling is able to analyze this response with <em>Checks</em>.</p>
+<p>A check is a response processor that captures some part of it and verifies that it meets some given condition(s).
+For example, when sending an HTTP request, you could expect a HTTP redirect; with a check, you can verify that the status of the response is actually a 30x code.</p>
+<p><em>Checks</em> can also be used to capture some elements and store them into the Session so that they can be reused later, for example to build the next request.</p>
+<p>For more information, check the <a class="reference internal" href="../http/http_check.html#http-check"><span class="std std-ref">Checks reference section</span></a>.</p>
+</div>
+<div class="section" id="assertions">
+<h2>Assertions<a class="headerlink" href="#assertions" title="Permalink to this headline">¶</a></h2>
+<p><em>Assertions</em> are used to define acceptance criteria on Gatling statistics (e.g. 99th percentile response time) that would make Gatling fail and return an error status code for the test as a whole.</p>
+<p>For more information, check the <a class="reference internal" href="assertions.html#assertions"><span class="std std-ref">Assertions reference section</span></a>.</p>
+</div>
+<div class="section" id="reports">
+<h2>Reports<a class="headerlink" href="#reports" title="Permalink to this headline">¶</a></h2>
+<p>By default, reports are automatically generated at the end of a simulation.
+They consist of HTML files. Therefore, they are portable and they can be viewed on any device with a web browser.</p>
+<p>For more information, check the <a class="reference internal" href="reports.html#reports"><span class="std std-ref">Reports reference section</span></a>.</p>
+</div>
+</div>
+
+          
+        </div>
+      </article>
+    </main>
+  </div>
+</div>
+
+
+<div class="sidebar-wrap col-md-3 content-left-wrap">
+  <div id="secondary" class="widget-area" role="complementary" itemscope="itemscope"
+       itemtype="http://schema.org/WPSideBar">
+    <aside id="search-2" class="widget widget_search">
+      <form role="form" method="get" class="search-form" action="../search.html">
+        <label>
+          <span class="screen-reader-text">Search through the documentation&nbsp;:</span>
+          <input type="search" class="search-field" placeholder="Search the documentation" name="q">
+        </label>
+        <input type="submit" class="search-submit" value="Search">
+      </form>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Table of Content</h1>
+      <ul>
+<li><a class="reference internal" href="#">Concepts</a><ul>
+<li><a class="reference internal" href="#virtual-user">Virtual User</a></li>
+<li><a class="reference internal" href="#scenario">Scenario</a></li>
+<li><a class="reference internal" href="#simulation">Simulation</a></li>
+<li><a class="reference internal" href="#session">Session</a></li>
+<li><a class="reference internal" href="#feeders">Feeders</a></li>
+<li><a class="reference internal" href="#checks">Checks</a></li>
+<li><a class="reference internal" href="#assertions">Assertions</a></li>
+<li><a class="reference internal" href="#reports">Reports</a></li>
+</ul>
+</li>
+</ul>
+
+    </aside>
+    
+    <aside class="widget">
+      <h1 class="widget-title">Previous topic</h1>
+      <ul>
+        <li>
+          <a href="index.html" title="Previous Chapter: General">
+            General
+          </a>
+        </li>
+      </ul>
+    </aside>
+    
+    
+    <aside class="widget">
+      <h1 class="widget-title">Next topic</h1>
+      <ul>
+        <li>
+          <a href="bundle_structure.html" title="Next Chapter: Bundle structure">
+            Bundle structure
+          </a>
+        </li>
+      </ul>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Contribute</h1>
+      <ul>
+        <li>
+          <a href="https://github.com/gatling/gatling/edit/master/src/sphinx/general/concepts.rst">Edit this page on Github</a>
+        </li>
+      </ul>
+    </aside>
+  </div>
+</div>
+
+
+
+
+

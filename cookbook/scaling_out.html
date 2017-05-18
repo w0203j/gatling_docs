@@ -1,0 +1,183 @@
+
+
+<ol class="breadcrumb">
+  <li><a href="../index.html">Gatling documentation</a></li>
+  <li><a href="index.html" accesskey="U">
+    Cookbook
+    </a>
+  </li>
+  <li><a href="">
+    Scaling Out
+  </a></li>
+</ol>
+
+<div class="content-left-wrap col-md-9">
+  <div id="primary" class="content-area">
+    <main itemscope="" itemtype="http://schema.org/WebPageElement" itemprop="mainContentOfPage" id="main"
+          class="site-main">
+      <article id="documentation" class="type-post status-publish format-standard hentry category-non-classe">
+        <header class="entry-header">
+          <h1 class="entry-title" itemprop="headline">Scaling Out</h1>
+        </header>
+        <div class="entry-content" itemprop="text">
+          
+          <div class="section" id="scaling-out">
+<span id="id1"></span>
+<p>Sometimes, generating some very heavy load from a single machine might lead to saturating the OS or the network interface controller.</p>
+<p>In this case, you might want to use several Gatling instances hosted on multiple machines.</p>
+<p>Gatling doesn’t have a cluster mode yet, but you can achieve similar results manually:</p>
+<ul class="simple">
+<li>deploy Gatling on several machines along with the Simulation classes and the associated resources (data, bodies, etc..)</li>
+<li>launch them remotely from a script, with the <code class="docutils literal"><span class="pre">-nr</span></code> (no reports) option</li>
+<li>retrieve all the simulation.log files</li>
+<li>rename them so they don’t clash</li>
+<li>place them into a folder in the results folder of a Gatling instance</li>
+<li>generate the reports with Gatling with the <code class="docutils literal"><span class="pre">-ro</span> <span class="pre">name-of-the-simulation-folder</span></code> (reports only), Gatling will pick all the files that match <code class="docutils literal"><span class="pre">.*\.log</span></code></li>
+</ul>
+<p>Example script using the above commands: (the script will run the same simulation parralel on given hosts, gather logs and generate a single report)</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+<span class="c1">##################################################################################################################</span>
+<span class="c1">#Gatling scale out/cluster run script:</span>
+<span class="c1">#Before running this script some assumptions are made:</span>
+<span class="c1">#1) Public keys were exchange inorder to ssh with no password promot (ssh-copy-id on all remotes)</span>
+<span class="c1">#2) Check  read/write permissions on all folders declared in this script.</span>
+<span class="c1">#3) Gatling installation (GATLING_HOME variable) is the same on all hosts</span>
+<span class="c1">#4) Assuming all hosts has the same user name (if not change in script)</span>
+<span class="c1">##################################################################################################################</span>
+
+<span class="c1">#Assuming same user name for all hosts</span>
+<span class="nv">USER_NAME</span><span class="o">=</span><span class="s1">&#39;nimrod&#39;</span>
+
+<span class="c1">#Remote hosts list</span>
+<span class="nv">HOSTS</span><span class="o">=(</span> <span class="m">192</span>.168.28.24 <span class="m">192</span>.123.123.12 <span class="m">180</span>.123.98.1<span class="o">)</span>
+
+<span class="c1">#Assuming all Gatling installation in same path (with write permissions)</span>
+<span class="nv">GATLING_HOME</span><span class="o">=</span>/gatling/gatling-charts-highcharts-1.5.6
+<span class="nv">GATLING_SIMULATIONS_DIR</span><span class="o">=</span><span class="nv">$GATLING_HOME</span>/user-files/simulations
+<span class="nv">GATLING_RUNNER</span><span class="o">=</span><span class="nv">$GATLING_HOME</span>/bin/gatling.sh
+
+<span class="c1">#Change to your simulation class name</span>
+<span class="nv">SIMULATION_NAME</span><span class="o">=</span><span class="s1">&#39;nimrodstech.GatlingClusterTest&#39;</span>
+
+<span class="c1">#No need to change this</span>
+<span class="nv">GATLING_REPORT_DIR</span><span class="o">=</span><span class="nv">$GATLING_HOME</span>/results/
+<span class="nv">GATHER_REPORTS_DIR</span><span class="o">=</span>/gatling/reports/
+
+<span class="nb">echo</span> <span class="s2">&quot;Starting Gatling cluster run for simulation: </span><span class="nv">$SIMULATION_NAME</span><span class="s2">&quot;</span>
+
+<span class="nb">echo</span> <span class="s2">&quot;Cleaning previous runs from localhost&quot;</span>
+rm -rf <span class="nv">$GATHER_REPORTS_DIR</span>
+mkdir <span class="nv">$GATHER_REPORTS_DIR</span>
+rm -rf <span class="nv">$GATLING_REPORT_DIR</span>
+
+<span class="k">for</span> HOST in <span class="s2">&quot;</span><span class="si">${</span><span class="nv">HOSTS</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="k">do</span>
+  <span class="nb">echo</span> <span class="s2">&quot;Cleaning previous runs from host: </span><span class="nv">$HOST</span><span class="s2">&quot;</span>
+  ssh -n -f <span class="nv">$USER_NAME</span>@<span class="nv">$HOST</span> <span class="s2">&quot;sh -c &#39;rm -rf </span><span class="nv">$GATLING_REPORT_DIR</span><span class="s2">&#39;&quot;</span>
+<span class="k">done</span>
+
+<span class="k">for</span> HOST in <span class="s2">&quot;</span><span class="si">${</span><span class="nv">HOSTS</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="k">do</span>
+  <span class="nb">echo</span> <span class="s2">&quot;Copying simulations to host: </span><span class="nv">$HOST</span><span class="s2">&quot;</span>
+  scp -r <span class="nv">$GATLING_SIMULATIONS_DIR</span>/* <span class="nv">$USER_NAME</span>@<span class="nv">$HOST</span>:<span class="nv">$GATLING_SIMULATIONS_DIR</span>
+<span class="k">done</span>
+
+<span class="k">for</span> HOST in <span class="s2">&quot;</span><span class="si">${</span><span class="nv">HOSTS</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="k">do</span>
+  <span class="nb">echo</span> <span class="s2">&quot;Running simulation on host: </span><span class="nv">$HOST</span><span class="s2">&quot;</span>
+  ssh -n -f <span class="nv">$USER_NAME</span>@<span class="nv">$HOST</span> <span class="s2">&quot;sh -c &#39;nohup </span><span class="nv">$GATLING_RUNNER</span><span class="s2"> -nr -s </span><span class="nv">$SIMULATION_NAME</span><span class="s2"> &gt; /gatling/run.log 2&gt;&amp;1 &amp;&#39;&quot;</span>
+<span class="k">done</span>
+
+<span class="nb">echo</span> <span class="s2">&quot;Running simulation on localhost&quot;</span>
+<span class="nv">$GATLING_RUNNER</span> -nr -s <span class="nv">$SIMULATION_NAME</span>
+
+<span class="nb">echo</span> <span class="s2">&quot;Gathering result file from localhost&quot;</span>
+ls -t <span class="nv">$GATLING_REPORT_DIR</span> <span class="p">|</span> head -n <span class="m">1</span> <span class="p">|</span> xargs -I <span class="o">{}</span> mv <span class="si">${</span><span class="nv">GATLING_REPORT_DIR</span><span class="si">}</span><span class="o">{}</span> <span class="si">${</span><span class="nv">GATLING_REPORT_DIR</span><span class="si">}</span>report
+cp <span class="si">${</span><span class="nv">GATLING_REPORT_DIR</span><span class="si">}</span>report/simulation.log <span class="nv">$GATHER_REPORTS_DIR</span>
+
+
+<span class="k">for</span> HOST in <span class="s2">&quot;</span><span class="si">${</span><span class="nv">HOSTS</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="k">do</span>
+  <span class="nb">echo</span> <span class="s2">&quot;Gathering result file from host: </span><span class="nv">$HOST</span><span class="s2">&quot;</span>
+  ssh -n -f <span class="nv">$USER_NAME</span>@<span class="nv">$HOST</span> <span class="s2">&quot;sh -c &#39;ls -t </span><span class="nv">$GATLING_REPORT_DIR</span><span class="s2"> | head -n 1 | xargs -I {} mv </span><span class="si">${</span><span class="nv">GATLING_REPORT_DIR</span><span class="si">}</span><span class="s2">{} </span><span class="si">${</span><span class="nv">GATLING_REPORT_DIR</span><span class="si">}</span><span class="s2">report&#39;&quot;</span>
+  scp <span class="nv">$USER_NAME</span>@<span class="nv">$HOST</span>:<span class="si">${</span><span class="nv">GATLING_REPORT_DIR</span><span class="si">}</span>report/simulation.log <span class="si">${</span><span class="nv">GATHER_REPORTS_DIR</span><span class="si">}</span>simulation-<span class="nv">$HOST</span>.log
+<span class="k">done</span>
+
+mv <span class="nv">$GATHER_REPORTS_DIR</span> <span class="nv">$GATLING_REPORT_DIR</span>
+<span class="nb">echo</span> <span class="s2">&quot;Aggregating simulations&quot;</span>
+<span class="nv">$GATLING_RUNNER</span> -ro reports
+
+<span class="c1">#using macOSX</span>
+open <span class="si">${</span><span class="nv">GATLING_REPORT_DIR</span><span class="si">}</span>reports/index.html
+
+<span class="c1">#using ubuntu</span>
+<span class="c1">#google-chrome ${GATLING_REPORT_DIR}reports/index.html</span>
+</pre></div>
+</div>
+</div>
+
+          
+        </div>
+      </article>
+    </main>
+  </div>
+</div>
+
+
+<div class="sidebar-wrap col-md-3 content-left-wrap">
+  <div id="secondary" class="widget-area" role="complementary" itemscope="itemscope"
+       itemtype="http://schema.org/WPSideBar">
+    <aside id="search-2" class="widget widget_search">
+      <form role="form" method="get" class="search-form" action="../search.html">
+        <label>
+          <span class="screen-reader-text">Search through the documentation&nbsp;:</span>
+          <input type="search" class="search-field" placeholder="Search the documentation" name="q">
+        </label>
+        <input type="submit" class="search-submit" value="Search">
+      </form>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Table of Content</h1>
+      <ul>
+<li><a class="reference internal" href="#">Scaling Out</a></li>
+</ul>
+
+    </aside>
+    
+    <aside class="widget">
+      <h1 class="widget-title">Previous topic</h1>
+      <ul>
+        <li>
+          <a href="index.html" title="Previous Chapter: Cookbook">
+            Cookbook
+          </a>
+        </li>
+      </ul>
+    </aside>
+    
+    
+    <aside class="widget">
+      <h1 class="widget-title">Next topic</h1>
+      <ul>
+        <li>
+          <a href="passing_parameters.html" title="Next Chapter: Passing Parameters">
+            Passing Parameters
+          </a>
+        </li>
+      </ul>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Contribute</h1>
+      <ul>
+        <li>
+          <a href="https://github.com/gatling/gatling/edit/master/src/sphinx/cookbook/scaling_out.rst">Edit this page on Github</a>
+        </li>
+      </ul>
+    </aside>
+  </div>
+</div>
+
+
+
+
+

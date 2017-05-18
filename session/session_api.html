@@ -1,0 +1,228 @@
+
+
+<ol class="breadcrumb">
+  <li><a href="../index.html">Gatling documentation</a></li>
+  <li><a href="index.html" accesskey="U">
+    Session
+    </a>
+  </li>
+  <li><a href="">
+    Session API
+  </a></li>
+</ol>
+
+<div class="content-left-wrap col-md-9">
+  <div id="primary" class="content-area">
+    <main itemscope="" itemtype="http://schema.org/WebPageElement" itemprop="mainContentOfPage" id="main"
+          class="site-main">
+      <article id="documentation" class="type-post status-publish format-standard hentry category-non-classe">
+        <header class="entry-header">
+          <h1 class="entry-title" itemprop="headline">Session API</h1>
+        </header>
+        <div class="entry-content" itemprop="text">
+          
+          <div class="section" id="session-api">
+<span id="session"></span>
+<div class="section" id="concept">
+<span id="session-concept"></span><h2>Concept<a class="headerlink" href="#concept" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="going-stateful">
+<h3>Going Stateful<a class="headerlink" href="#going-stateful" title="Permalink to this headline">¶</a></h3>
+<p>In most load testing use cases, it’s important that the virtual users don’t play the same data.
+Otherwise, you might end up not testing your application but your caches.</p>
+<p>Moreover, if you’re running an application on a Java Virtual Machine, the Just In Time compiler (JIT) will make dramatic optimizations and your system will behave very differently from your actual one.</p>
+<p>Though, <strong>you have to make your scenario steps dynamic, based on virtual user specific data</strong>.</p>
+</div>
+<div class="section" id="id1">
+<h3>Session<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>Session is a virtual user’s state.</p>
+<p>Basically, it’s a <code class="docutils literal"><span class="pre">Map[String,</span> <span class="pre">Any]</span></code>: a map with key Strings.
+In Gatling, entries in this map are called <strong>Session attributes</strong>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Remember that a Gatling scenario is a workflow where every step is backed by an Akka Actor?</p>
+<p class="last">A <code class="docutils literal"><span class="pre">Session</span></code> is actually the message that are passed along a scenario workflow.</p>
+</div>
+</div>
+<div class="section" id="injecting-data">
+<span id="session-inject"></span><h3>Injecting Data<a class="headerlink" href="#injecting-data" title="Permalink to this headline">¶</a></h3>
+<p>The first step is to inject state into the virtual users.</p>
+<p>There’s 3 ways of doing that:</p>
+<ul class="simple">
+<li>using <a class="reference internal" href="feeder.html#feeder"><span class="std std-ref">Feeders</span></a></li>
+<li>extracting data from responses and saving them, e.g. with <a class="reference internal" href="../http/http_check.html#http-check-saving"><span class="std std-ref">HTTP Check’s saveAs</span></a></li>
+<li>manually with the Session API</li>
+</ul>
+</div>
+<div class="section" id="fetching-data">
+<span id="session-fetch"></span><h3>Fetching Data<a class="headerlink" href="#fetching-data" title="Permalink to this headline">¶</a></h3>
+<p>Once you have injected data into your virtual users, you’ll naturally want to retrieve and use it.</p>
+<p>There’s 2 ways of doing that:</p>
+<ul class="simple">
+<li>using Gatling’s <a class="reference internal" href="expression_el.html#el"><span class="std std-ref">Expression Language</span></a></li>
+<li>manually with the Session API</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>If Gatling complains that an attribute could not be found, check that:</p>
+<ul class="last simple">
+<li>you don’t have a typo in a feeder file header</li>
+<li>you don’t have a typo in a Gatling EL expression</li>
+<li>your feed action is properly called (e.g. could be be properly chained with other action because a dot is missing)</li>
+<li>the check that should have saved it actually failed</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="id2">
+<span id="id3"></span><h2>Session API<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="setting-attributes">
+<h3>Setting Attributes<a class="headerlink" href="#setting-attributes" title="Permalink to this headline">¶</a></h3>
+<p>Session has the following methods:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">set(key:</span> <span class="pre">String,</span> <span class="pre">value:</span> <span class="pre">Any):</span> <span class="pre">Session</span></code>: add or replace an attribute</li>
+<li><code class="docutils literal"><span class="pre">setAll(newAttributes:</span> <span class="pre">(String,</span> <span class="pre">Any)*):</span> <span class="pre">Session</span></code>: bulk add or replace attributes</li>
+<li><code class="docutils literal"><span class="pre">setAll(newAttributes:</span> <span class="pre">Iterable[(String,</span> <span class="pre">Any)]):</span> <span class="pre">Session</span></code>: same as above but takes an Iterable instead of a varags</li>
+<li><code class="docutils literal"><span class="pre">reset</span></code>: reset all attributes</li>
+</ul>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p><code class="docutils literal"><span class="pre">Session</span></code> instances are immutable!</p>
+<p>Why is that so? Because Sessions are messages that are dealt with in a multi-threaded concurrent way,
+so immutability is the best way to deal with state without relying on synchronization and blocking.</p>
+<p class="last">A very common pitfall is to forget that <code class="docutils literal"><span class="pre">set</span></code> and <code class="docutils literal"><span class="pre">setAll</span></code> actually return new instances.</p>
+</div>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">session</span><span class="k">:</span> <span class="kt">Session</span> <span class="o">=</span> <span class="o">???</span>
+
+<span class="c1">// wrong usage</span>
+<span class="n">session</span><span class="o">.</span><span class="n">set</span><span class="o">(</span><span class="s">&quot;foo&quot;</span><span class="o">,</span> <span class="s">&quot;FOO&quot;</span><span class="o">)</span> <span class="c1">// wrong: the result of this set call is just discarded</span>
+<span class="n">session</span><span class="o">.</span><span class="n">set</span><span class="o">(</span><span class="s">&quot;bar&quot;</span><span class="o">,</span> <span class="s">&quot;BAR&quot;</span><span class="o">)</span>
+
+<span class="c1">// proper usage</span>
+<span class="n">session</span><span class="o">.</span><span class="n">set</span><span class="o">(</span><span class="s">&quot;foo&quot;</span><span class="o">,</span> <span class="s">&quot;FOO&quot;</span><span class="o">).</span><span class="n">set</span><span class="o">(</span><span class="s">&quot;bar&quot;</span><span class="o">,</span> <span class="s">&quot;BAR&quot;</span><span class="o">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="getting-attributes">
+<h3>Getting Attributes<a class="headerlink" href="#getting-attributes" title="Permalink to this headline">¶</a></h3>
+<p>Let’s say a Session instance variable named session contains a String attribute named “foo”.</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">session</span><span class="k">:</span> <span class="kt">Session</span> <span class="o">=</span> <span class="o">???</span>
+</pre></div>
+</div>
+<p>Then:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">attribute</span><span class="k">:</span> <span class="kt">SessionAttribute</span> <span class="o">=</span> <span class="n">session</span><span class="o">(</span><span class="s">&quot;foo&quot;</span><span class="o">)</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last"><code class="docutils literal"><span class="pre">session(&quot;foo&quot;)</span></code> doesn’t return the value, but a wrapper.</p>
+</div>
+<p>You can then access methods to retrieve the actual value in several ways:</p>
+<p><code class="docutils literal"><span class="pre">session(&quot;foo&quot;).as[String]</span></code>:</p>
+<ul class="simple">
+<li>returns a <code class="docutils literal"><span class="pre">String</span></code>,</li>
+<li>throws a <code class="docutils literal"><span class="pre">NoSuchElementException</span></code> if the “foo” attribute is undefined,</li>
+<li>throws a <code class="docutils literal"><span class="pre">ClassCastException</span></code> if the value is not a String</li>
+</ul>
+<p><code class="docutils literal"><span class="pre">session(&quot;foo&quot;).asOption[String]</span></code>:</p>
+<ul class="simple">
+<li>returns an <code class="docutils literal"><span class="pre">Option[String]</span></code></li>
+<li>which is <code class="docutils literal"><span class="pre">None</span></code> if the “foo” attribute is undefined,</li>
+<li>which is <code class="docutils literal"><span class="pre">Some(value)</span></code> otherwise and <em>value</em> is indeed a String</li>
+<li>throws a <code class="docutils literal"><span class="pre">ClassCastException</span></code> otherwise</li>
+</ul>
+<p><code class="docutils literal"><span class="pre">session(&quot;foo&quot;).validate[String]</span></code>:</p>
+<ul class="simple">
+<li>returns an <code class="docutils literal"><span class="pre">Validation[String]</span></code></li>
+<li>which is <code class="docutils literal"><span class="pre">Failure(errorMessage)</span></code> if the <em>“foo”</em> attribute is undefined</li>
+<li>which is <code class="docutils literal"><span class="pre">Failure(errorMessage)</span></code> if the value is not a String</li>
+<li>which is <code class="docutils literal"><span class="pre">Success(value)</span></code> otherwise</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Using <code class="docutils literal"><span class="pre">as</span></code> will probably easier for most users.
+It will work fine, but the downside is that they might generate lots of expensive exceptions once things starts going wrong under load.</p>
+<p class="last">We advise considering <code class="docutils literal"><span class="pre">validate</span></code> once accustomed to functional logic as it deals with unexpected results in a more efficient manner.</p>
+</div>
+</div>
+</div>
+</div>
+
+          
+        </div>
+      </article>
+    </main>
+  </div>
+</div>
+
+
+<div class="sidebar-wrap col-md-3 content-left-wrap">
+  <div id="secondary" class="widget-area" role="complementary" itemscope="itemscope"
+       itemtype="http://schema.org/WPSideBar">
+    <aside id="search-2" class="widget widget_search">
+      <form role="form" method="get" class="search-form" action="../search.html">
+        <label>
+          <span class="screen-reader-text">Search through the documentation&nbsp;:</span>
+          <input type="search" class="search-field" placeholder="Search the documentation" name="q">
+        </label>
+        <input type="submit" class="search-submit" value="Search">
+      </form>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Table of Content</h1>
+      <ul>
+<li><a class="reference internal" href="#">Session API</a><ul>
+<li><a class="reference internal" href="#concept">Concept</a><ul>
+<li><a class="reference internal" href="#going-stateful">Going Stateful</a></li>
+<li><a class="reference internal" href="#id1">Session</a></li>
+<li><a class="reference internal" href="#injecting-data">Injecting Data</a></li>
+<li><a class="reference internal" href="#fetching-data">Fetching Data</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id2">Session API</a><ul>
+<li><a class="reference internal" href="#setting-attributes">Setting Attributes</a></li>
+<li><a class="reference internal" href="#getting-attributes">Getting Attributes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    </aside>
+    
+    <aside class="widget">
+      <h1 class="widget-title">Previous topic</h1>
+      <ul>
+        <li>
+          <a href="index.html" title="Previous Chapter: Session">
+            Session
+          </a>
+        </li>
+      </ul>
+    </aside>
+    
+    
+    <aside class="widget">
+      <h1 class="widget-title">Next topic</h1>
+      <ul>
+        <li>
+          <a href="expression_el.html" title="Next Chapter: Expression and EL">
+            Expression and EL
+          </a>
+        </li>
+      </ul>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Contribute</h1>
+      <ul>
+        <li>
+          <a href="https://github.com/gatling/gatling/edit/master/src/sphinx/session/session_api.rst">Edit this page on Github</a>
+        </li>
+      </ul>
+    </aside>
+  </div>
+</div>
+
+
+
+
+

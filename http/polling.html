@@ -1,0 +1,139 @@
+
+
+<ol class="breadcrumb">
+  <li><a href="../index.html">Gatling documentation</a></li>
+  <li><a href="index.html" accesskey="U">
+    HTTP
+    </a>
+  </li>
+  <li><a href="">
+    HTTP Polling
+  </a></li>
+</ol>
+
+<div class="content-left-wrap col-md-9">
+  <div id="primary" class="content-area">
+    <main itemscope="" itemtype="http://schema.org/WebPageElement" itemprop="mainContentOfPage" id="main"
+          class="site-main">
+      <article id="documentation" class="type-post status-publish format-standard hentry category-non-classe">
+        <header class="entry-header">
+          <h1 class="entry-title" itemprop="headline">HTTP Polling</h1>
+        </header>
+        <div class="entry-content" itemprop="text">
+          
+          <div class="section" id="http-polling">
+<span id="id1"></span>
+<p>HTTP polling is an extension to the HTTP DSL, whose entry point is the <code class="docutils literal"><span class="pre">polling</span></code> method.</p>
+<div class="section" id="common-operations">
+<h2>Common operations<a class="headerlink" href="#common-operations" title="Permalink to this headline">¶</a></h2>
+<p id="http-polling-name">If you want to deal with several pollers with per virtual users,
+you have to give them a name and pass this name on each polling operation:</p>
+<p><code class="docutils literal"><span class="pre">pollerName(name:String)</span></code></p>
+<p>For example:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">polling</span><span class="o">.</span><span class="n">pollerName</span><span class="o">(</span><span class="s">&quot;myCustomName&quot;</span><span class="o">)</span>
+</pre></div>
+</div>
+<p>Of course, this step is not required if you deal with one single poller per virtual user.</p>
+<div class="section" id="start-polling">
+<h3>Start polling<a class="headerlink" href="#start-polling" title="Permalink to this headline">¶</a></h3>
+<p>The first thing to do is start the polling, by specifying the request and how often it will run:</p>
+<p><code class="docutils literal"><span class="pre">every(period).exec(request)</span></code></p>
+<p>The <code class="docutils literal"><span class="pre">period</span></code> parameter is from response received to next request sent.</p>
+<p>For example:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">exec</span><span class="o">(</span>
+  <span class="n">polling</span>
+    <span class="o">.</span><span class="n">every</span><span class="o">(</span><span class="mi">10</span> <span class="n">seconds</span><span class="o">)</span>
+    <span class="o">.</span><span class="n">exec</span><span class="o">(</span><span class="n">http</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">).</span><span class="n">get</span><span class="o">(</span><span class="s">&quot;url&quot;</span><span class="o">))</span>
+<span class="o">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="stop-polling">
+<h3>Stop polling<a class="headerlink" href="#stop-polling" title="Permalink to this headline">¶</a></h3>
+<p>When you don’t need to poll a request anymore, you can stop the poller:</p>
+<p><code class="docutils literal"><span class="pre">poller.stop</span></code></p>
+<p>For example:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">exec</span><span class="o">(</span><span class="n">polling</span><span class="o">.</span><span class="n">stop</span><span class="o">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Stopping a poller works in the same fashion as SSE or WebSockets <code class="docutils literal"><span class="pre">reconciliate</span></code>:
+When stopping a poller, the poller flow state (e.g. the session) is merged with the main flow state.</p>
+</div>
+</div>
+</div>
+</div>
+
+          
+        </div>
+      </article>
+    </main>
+  </div>
+</div>
+
+
+<div class="sidebar-wrap col-md-3 content-left-wrap">
+  <div id="secondary" class="widget-area" role="complementary" itemscope="itemscope"
+       itemtype="http://schema.org/WPSideBar">
+    <aside id="search-2" class="widget widget_search">
+      <form role="form" method="get" class="search-form" action="../search.html">
+        <label>
+          <span class="screen-reader-text">Search through the documentation&nbsp;:</span>
+          <input type="search" class="search-field" placeholder="Search the documentation" name="q">
+        </label>
+        <input type="submit" class="search-submit" value="Search">
+      </form>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Table of Content</h1>
+      <ul>
+<li><a class="reference internal" href="#">HTTP Polling</a><ul>
+<li><a class="reference internal" href="#common-operations">Common operations</a><ul>
+<li><a class="reference internal" href="#start-polling">Start polling</a></li>
+<li><a class="reference internal" href="#stop-polling">Stop polling</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    </aside>
+    
+    <aside class="widget">
+      <h1 class="widget-title">Previous topic</h1>
+      <ul>
+        <li>
+          <a href="recorder.html" title="Previous Chapter: Recorder">
+            Recorder
+          </a>
+        </li>
+      </ul>
+    </aside>
+    
+    
+    <aside class="widget">
+      <h1 class="widget-title">Next topic</h1>
+      <ul>
+        <li>
+          <a href="websocket.html" title="Next Chapter: WebSocket">
+            WebSocket
+          </a>
+        </li>
+      </ul>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Contribute</h1>
+      <ul>
+        <li>
+          <a href="https://github.com/gatling/gatling/edit/master/src/sphinx/http/polling.rst">Edit this page on Github</a>
+        </li>
+      </ul>
+    </aside>
+  </div>
+</div>
+
+
+
+
+

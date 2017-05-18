@@ -1,0 +1,215 @@
+
+
+<ol class="breadcrumb">
+  <li><a href="../index.html">Gatling documentation</a></li>
+  <li><a href="index.html" accesskey="U">
+    Migration guides
+    </a>
+  </li>
+  <li><a href="">
+    Migrating from 2.0 to 2.1
+  </a></li>
+</ol>
+
+<div class="content-left-wrap col-md-9">
+  <div id="primary" class="content-area">
+    <main itemscope="" itemtype="http://schema.org/WebPageElement" itemprop="mainContentOfPage" id="main"
+          class="site-main">
+      <article id="documentation" class="type-post status-publish format-standard hentry category-non-classe">
+        <header class="entry-header">
+          <h1 class="entry-title" itemprop="headline">Migrating from 2.0 to 2.1</h1>
+        </header>
+        <div class="entry-content" itemprop="text">
+          
+          <div class="section" id="migrating-from-2-0-to-2-1">
+<span id="to-2-1"></span>
+<div class="section" id="global-changes">
+<h2>Global changes<a class="headerlink" href="#global-changes" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="scala-2-11">
+<h3>Scala 2.11<a class="headerlink" href="#scala-2-11" title="Permalink to this headline">¶</a></h3>
+<p>Gatling is now built with Scala 2.11.
+If you’re using <a class="reference external" href="http://scala-ide.org/index.html">Scala IDE</a>, make sure you’re using a version compatible with Scala 2.11.</p>
+</div>
+<div class="section" id="compiler-runs-standalone">
+<h3>Compiler runs standalone<a class="headerlink" href="#compiler-runs-standalone" title="Permalink to this headline">¶</a></h3>
+<p>Gatling itself doesn’t compile the Simulations anymore and expects that the simulations are already compiled.
+This means that gatling.sh/gatling.bat and the Maven plugin runs the compiler prior to running Gatling.
+Consequently, a few options in gatling.conf have been removed:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">gatling.core.disableCompiler</span></code></li>
+<li><code class="docutils literal"><span class="pre">gatling.core.zinc.jvmArgs</span></code></li>
+</ul>
+<p>Please note that, as this change implied that the Maven Plugin was heavily modified so that it compiles the simulations
+separately prior to running Gatling, you’ll need to upgrade the Maven Plugin to its version 2.1.0 too.</p>
+</div>
+<div class="section" id="percentiles">
+<h3>Percentiles<a class="headerlink" href="#percentiles" title="Permalink to this headline">¶</a></h3>
+<p>Gatling now publishes 4 percentiles instead of 2.
+These percentiles are published in the reports and in the Graphite integration module.
+Beware that keys in <code class="docutils literal"><span class="pre">gatling.conf</span></code> file have been translated:</p>
+<ul class="simple">
+<li>Gatling 2.0:<ul>
+<li>percentile1 = 95</li>
+<li>percentile2 = 99</li>
+</ul>
+</li>
+<li>Gatling 2.1+:<ul>
+<li>percentile1 = 50</li>
+<li>percentile2 = 75</li>
+<li>percentile3 = 95</li>
+<li>percentile4 = 99</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="core">
+<h2>Core<a class="headerlink" href="#core" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="mute-mode">
+<h3>Mute mode<a class="headerlink" href="#mute-mode" title="Permalink to this headline">¶</a></h3>
+<p>The “mute mode” option, which was previously restricted to the SBT Plugin,
+is now also usable by the bundle scripts and the Maven Archetype.</p>
+</div>
+<div class="section" id="assertions">
+<h3>Assertions<a class="headerlink" href="#assertions" title="Permalink to this headline">¶</a></h3>
+<p>Validating assertions in combination with the <code class="docutils literal"><span class="pre">reports-only</span></code> / <code class="docutils literal"><span class="pre">ro</span></code> option
+does not require to pass the simulation (using <code class="docutils literal"><span class="pre">-s</span></code>) for which the assertions will be validated anymore.</p>
+</div>
+<div class="section" id="throttling">
+<h3>Throttling<a class="headerlink" href="#throttling" title="Permalink to this headline">¶</a></h3>
+<p>Throttling now automatically adds a maxDuration of either the simulation throttling duration, or the minimum of the scenarios throttling durations.</p>
+</div>
+</div>
+<div class="section" id="http">
+<h2>HTTP<a class="headerlink" href="#http" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="parameters">
+<h3>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h3>
+<p>Form parameters are no longer specific to POST method, you can use them with all methods.</p>
+</div>
+<div class="section" id="request-bodies-directory">
+<h3>Request Bodies Directory<a class="headerlink" href="#request-bodies-directory" title="Permalink to this headline">¶</a></h3>
+<p>The directory name was changed from <code class="docutils literal"><span class="pre">request-bodies</span></code> to <code class="docutils literal"><span class="pre">bodies</span></code> as it now can host both request bodies and response bodies.
+The latter one are now captured by the recorder, and can be used as template for <a class="reference internal" href="../http/http_check.html#http-check-body-string"><span class="std std-ref">checking the response body</span></a>.</p>
+<p>CLI option was renamed from <code class="docutils literal"><span class="pre">rbf</span></code> to <code class="docutils literal"><span class="pre">bdf</span></code>.</p>
+</div>
+<div class="section" id="checks">
+<h3>Checks<a class="headerlink" href="#checks" title="Permalink to this headline">¶</a></h3>
+<p>Deprecated <code class="docutils literal"><span class="pre">dontValidate</span></code> was dropped in 2.1 as previously announced.
+Please use <code class="docutils literal"><span class="pre">optional</span></code> instead.</p>
+</div>
+<div class="section" id="protocol">
+<h3>Protocol<a class="headerlink" href="#protocol" title="Permalink to this headline">¶</a></h3>
+<p>Deprecated <code class="docutils literal"><span class="pre">baseHeaders</span></code> was dropped in 2.1 as previously announced.
+Please use <code class="docutils literal"><span class="pre">headers</span></code> instead.</p>
+</div>
+</div>
+<div class="section" id="maven-archetype">
+<h2>Maven Archetype<a class="headerlink" href="#maven-archetype" title="Permalink to this headline">¶</a></h2>
+<p>Due to some necessary changes to allow Gatling to use Scala 2.11, you’ll have to update <code class="docutils literal"><span class="pre">IDEPathHelper.scala</span></code>, <code class="docutils literal"><span class="pre">Engine.scala</span></code> and <code class="docutils literal"><span class="pre">Recorder.scala</span></code>
+if you’re using the Maven archetype.</p>
+<p>Either generate a new project with the 2.1.1 archetype (there was a bug in 2.1), or override your classes with the ones <a class="reference external" href="https://github.com/gatling/gatling-maven/tree/gatling-maven-parent-2.1.1/gatling-highcharts-maven-archetype/src/main/scala">here</a>.
+If you choose the latter, don’t forget to fix the <code class="docutils literal"><span class="pre">simulationPackage</span></code> in <code class="docutils literal"><span class="pre">Recorder.scala</span></code>.</p>
+</div>
+<div class="section" id="sbt-plugin">
+<h2>SBT Plugin<a class="headerlink" href="#sbt-plugin" title="Permalink to this headline">¶</a></h2>
+<p>The SBT Plugin’s test framework has been moved to the core project in 2.1.
+As a consequence, the test framework name has be modified to follow the naming conventions of all core modules
+and share its versionning.</p>
+<p>The SBT Plugin will also share the same versionning schema as all other Gatling modules,
+and has been renamed to ‘gatling-sbt’.</p>
+<p>The new coordinates are therefore :</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">&quot;io.gatling&quot;</span> <span class="pre">%</span> <span class="pre">&quot;gatling-sbt&quot;</span> <span class="pre">%</span> <span class="pre">&quot;2.1.0&quot;</span></code> for the SBT Plugin</li>
+<li><code class="docutils literal"><span class="pre">&quot;io.gatling&quot;</span> <span class="pre">%</span> <span class="pre">&quot;gatling-test-framework&quot;</span> <span class="pre">%</span> <span class="pre">&quot;2.1.0&quot;</span></code> for the testing framework.</li>
+</ul>
+</div>
+</div>
+
+          
+        </div>
+      </article>
+    </main>
+  </div>
+</div>
+
+
+<div class="sidebar-wrap col-md-3 content-left-wrap">
+  <div id="secondary" class="widget-area" role="complementary" itemscope="itemscope"
+       itemtype="http://schema.org/WPSideBar">
+    <aside id="search-2" class="widget widget_search">
+      <form role="form" method="get" class="search-form" action="../search.html">
+        <label>
+          <span class="screen-reader-text">Search through the documentation&nbsp;:</span>
+          <input type="search" class="search-field" placeholder="Search the documentation" name="q">
+        </label>
+        <input type="submit" class="search-submit" value="Search">
+      </form>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Table of Content</h1>
+      <ul>
+<li><a class="reference internal" href="#">Migrating from 2.0 to 2.1</a><ul>
+<li><a class="reference internal" href="#global-changes">Global changes</a><ul>
+<li><a class="reference internal" href="#scala-2-11">Scala 2.11</a></li>
+<li><a class="reference internal" href="#compiler-runs-standalone">Compiler runs standalone</a></li>
+<li><a class="reference internal" href="#percentiles">Percentiles</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#core">Core</a><ul>
+<li><a class="reference internal" href="#mute-mode">Mute mode</a></li>
+<li><a class="reference internal" href="#assertions">Assertions</a></li>
+<li><a class="reference internal" href="#throttling">Throttling</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#http">HTTP</a><ul>
+<li><a class="reference internal" href="#parameters">Parameters</a></li>
+<li><a class="reference internal" href="#request-bodies-directory">Request Bodies Directory</a></li>
+<li><a class="reference internal" href="#checks">Checks</a></li>
+<li><a class="reference internal" href="#protocol">Protocol</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#maven-archetype">Maven Archetype</a></li>
+<li><a class="reference internal" href="#sbt-plugin">SBT Plugin</a></li>
+</ul>
+</li>
+</ul>
+
+    </aside>
+    
+    <aside class="widget">
+      <h1 class="widget-title">Previous topic</h1>
+      <ul>
+        <li>
+          <a href="2.0.0-M3a-to-2.0.html" title="Previous Chapter: Migrating from 2.0.0-M3a to 2.0">
+            Migrating from 2.0.0-...
+          </a>
+        </li>
+      </ul>
+    </aside>
+    
+    
+    <aside class="widget">
+      <h1 class="widget-title">Next topic</h1>
+      <ul>
+        <li>
+          <a href="2.1-to-2.2.html" title="Next Chapter: Migrating from 2.1 to 2.2">
+            Migrating from 2.1 to 2.2
+          </a>
+        </li>
+      </ul>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Contribute</h1>
+      <ul>
+        <li>
+          <a href="https://github.com/gatling/gatling/edit/master/src/sphinx/migration_guides/2.0-to-2.1.rst">Edit this page on Github</a>
+        </li>
+      </ul>
+    </aside>
+  </div>
+</div>
+
+
+
+
+

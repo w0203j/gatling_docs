@@ -1,0 +1,147 @@
+
+
+<ol class="breadcrumb">
+  <li><a href="../index.html">Gatling documentation</a></li>
+  <li><a href="index.html" accesskey="U">
+    General
+    </a>
+  </li>
+  <li><a href="">
+    Timings
+  </a></li>
+</ol>
+
+<div class="content-left-wrap col-md-9">
+  <div id="primary" class="content-area">
+    <main itemscope="" itemtype="http://schema.org/WebPageElement" itemprop="mainContentOfPage" id="main"
+          class="site-main">
+      <article id="documentation" class="type-post status-publish format-standard hentry category-non-classe">
+        <header class="entry-header">
+          <h1 class="entry-title" itemprop="headline">Timings</h1>
+        </header>
+        <div class="entry-content" itemprop="text">
+          
+          <div class="section" id="timings">
+<span id="id1"></span>
+<p>As Gatling runs and executes requests, several timings are recorded, which make up the basis of all forms of reporting in Gatling: console, HTML reports, etc…</p>
+<div class="section" id="active-users">
+<span id="users"></span><h2>Active Users<a class="headerlink" href="#active-users" title="Permalink to this headline">¶</a></h2>
+<p>At a given second, active users are computed as:</p>
+<ul class="simple">
+<li>the number of active users at the previous second</li>
+<li>+ the number of users who started during this second</li>
+<li>- the number of users who finished during the previous second</li>
+</ul>
+</div>
+<div class="section" id="requests">
+<span id="request-timings"></span><h2>Requests<a class="headerlink" href="#requests" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="response-time">
+<span id="request-timings-rt"></span><h3>Response Time<a class="headerlink" href="#response-time" title="Permalink to this headline">¶</a></h3>
+<p>The response time is the elapsed time between the instant a request is sent and the instant the complete response is received:</p>
+<ul class="simple">
+<li>The beginning of the request’s sending is the instant when the connection to the target host has been established or grabbed from the pool.</li>
+<li>The end of the response’s receiving is the instant when the whole response (status, headers and body) has been received by Gatling</li>
+</ul>
+</div>
+</div>
+<div class="section" id="groups">
+<span id="groups-timings"></span><h2>Groups<a class="headerlink" href="#groups" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="count">
+<span id="groups-timings-rt"></span><h3>Count<a class="headerlink" href="#count" title="Permalink to this headline">¶</a></h3>
+<p>The counts are the number of group executions, not the sum of the counts of each individual request in that group.</p>
+</div>
+<div class="section" id="id2">
+<h3>Response Time<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p>The response time of a group is the cumulated response times of each individual request in that group.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">When dealing with embedded resources (inferred or explicitly set), the behaviour is slightly different : as resources are fetched asynchronously,
+the cumulated response time for embedded resources starts from the beginning of the first resource request to the end of the last resource request.</p>
+</div>
+</div>
+<div class="section" id="cumulated-time">
+<span id="groups-timings-ct"></span><h3>Cumulated Time<a class="headerlink" href="#cumulated-time" title="Permalink to this headline">¶</a></h3>
+<p>The cumulated time of a group is the elapsed time from the start of the group’s first request to the end of the group’s last request, including  pauses.
+Groups’ cumulated time are only reported in the “Cumulated response time” chart.</p>
+</div>
+</div>
+</div>
+
+          
+        </div>
+      </article>
+    </main>
+  </div>
+</div>
+
+
+<div class="sidebar-wrap col-md-3 content-left-wrap">
+  <div id="secondary" class="widget-area" role="complementary" itemscope="itemscope"
+       itemtype="http://schema.org/WPSideBar">
+    <aside id="search-2" class="widget widget_search">
+      <form role="form" method="get" class="search-form" action="../search.html">
+        <label>
+          <span class="screen-reader-text">Search through the documentation&nbsp;:</span>
+          <input type="search" class="search-field" placeholder="Search the documentation" name="q">
+        </label>
+        <input type="submit" class="search-submit" value="Search">
+      </form>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Table of Content</h1>
+      <ul>
+<li><a class="reference internal" href="#">Timings</a><ul>
+<li><a class="reference internal" href="#active-users">Active Users</a></li>
+<li><a class="reference internal" href="#requests">Requests</a><ul>
+<li><a class="reference internal" href="#response-time">Response Time</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#groups">Groups</a><ul>
+<li><a class="reference internal" href="#count">Count</a></li>
+<li><a class="reference internal" href="#id2">Response Time</a></li>
+<li><a class="reference internal" href="#cumulated-time">Cumulated Time</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    </aside>
+    
+    <aside class="widget">
+      <h1 class="widget-title">Previous topic</h1>
+      <ul>
+        <li>
+          <a href="assertions.html" title="Previous Chapter: Assertions">
+            Assertions
+          </a>
+        </li>
+      </ul>
+    </aside>
+    
+    
+    <aside class="widget">
+      <h1 class="widget-title">Next topic</h1>
+      <ul>
+        <li>
+          <a href="reports.html" title="Next Chapter: Reports">
+            Reports
+          </a>
+        </li>
+      </ul>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Contribute</h1>
+      <ul>
+        <li>
+          <a href="https://github.com/gatling/gatling/edit/master/src/sphinx/general/timings.rst">Edit this page on Github</a>
+        </li>
+      </ul>
+    </aside>
+  </div>
+</div>
+
+
+
+
+

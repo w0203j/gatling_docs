@@ -1,0 +1,168 @@
+
+
+<ol class="breadcrumb">
+  <li><a href="../index.html">Gatling documentation</a></li>
+  <li><a href="index.html" accesskey="U">
+    Cookbook
+    </a>
+  </li>
+  <li><a href="">
+    Handling JSF
+  </a></li>
+</ol>
+
+<div class="content-left-wrap col-md-9">
+  <div id="primary" class="content-area">
+    <main itemscope="" itemtype="http://schema.org/WebPageElement" itemprop="mainContentOfPage" id="main"
+          class="site-main">
+      <article id="documentation" class="type-post status-publish format-standard hentry category-non-classe">
+        <header class="entry-header">
+          <h1 class="entry-title" itemprop="headline">Handling JSF</h1>
+        </header>
+        <div class="entry-content" itemprop="text">
+          
+          <div class="section" id="handling-jsf">
+
+<div class="section" id="basic-jsf">
+<h2>Basic JSF<a class="headerlink" href="#basic-jsf" title="Permalink to this headline">¶</a></h2>
+<p>JSF requires a parameter named <code class="docutils literal"><span class="pre">javax.faces.ViewState</span></code> to be captured on every page and be passed in every POST request.</p>
+<p>Adding a check for capturing the value and a param on very request would be very cumbersome.
+Hopefully, we can factor out these operations.</p>
+<p>Define factory methods for building JSF requests that would automatically perform those operations:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">import</span> <span class="nn">io.gatling.core.session.Expression</span>
+
+<span class="k">val</span> <span class="n">jsfViewStateCheck</span> <span class="k">=</span> <span class="n">css</span><span class="o">(</span><span class="s">&quot;input[name=&#39;javax.faces.ViewState&#39;]&quot;</span><span class="o">,</span> <span class="s">&quot;value&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">saveAs</span><span class="o">(</span><span class="s">&quot;viewState&quot;</span><span class="o">)</span>
+
+<span class="k">val</span> <span class="n">jsfPartialViewStateCheck</span> <span class="k">=</span> <span class="n">xpath</span><span class="o">(</span><span class="s">&quot;//update[contains(@id,&#39;ViewState&#39;)]&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">saveAs</span><span class="o">(</span><span class="s">&quot;viewState&quot;</span><span class="o">)</span>
+
+<span class="k">def</span> <span class="n">jsfGet</span><span class="o">(</span><span class="n">name</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">url</span><span class="k">:</span> <span class="kt">Expression</span><span class="o">[</span><span class="kt">String</span><span class="o">])</span> <span class="k">=</span> <span class="n">http</span><span class="o">(</span><span class="n">name</span><span class="o">).</span><span class="n">get</span><span class="o">(</span><span class="n">url</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">check</span><span class="o">(</span><span class="n">jsfViewStateCheck</span><span class="o">)</span>
+<span class="k">def</span> <span class="n">jsfPost</span><span class="o">(</span><span class="n">name</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">url</span><span class="k">:</span> <span class="kt">Expression</span><span class="o">[</span><span class="kt">String</span><span class="o">])</span> <span class="k">=</span> <span class="n">http</span><span class="o">(</span><span class="n">name</span><span class="o">).</span><span class="n">post</span><span class="o">(</span><span class="n">url</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">formParam</span><span class="o">(</span><span class="s">&quot;javax.faces.ViewState&quot;</span><span class="o">,</span> <span class="s">&quot;${viewState}&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">check</span><span class="o">(</span><span class="n">jsfViewStateCheck</span><span class="o">)</span>
+<span class="k">def</span> <span class="n">jsfPartialPost</span><span class="o">(</span><span class="n">name</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">url</span><span class="k">:</span> <span class="kt">Expression</span><span class="o">[</span><span class="kt">String</span><span class="o">])</span> <span class="k">=</span> <span class="n">http</span><span class="o">(</span><span class="n">name</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">post</span><span class="o">(</span><span class="n">url</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">header</span><span class="o">(</span><span class="s">&quot;Faces-Request&quot;</span><span class="o">,</span> <span class="s">&quot;partial/ajax&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">formParam</span><span class="o">(</span><span class="s">&quot;javax.faces.partial.ajax&quot;</span><span class="o">,</span> <span class="s">&quot;true&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">formParam</span><span class="o">(</span><span class="s">&quot;javax.faces.ViewState&quot;</span><span class="o">,</span> <span class="s">&quot;${viewState}&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">check</span><span class="o">(</span><span class="n">jsfPartialViewStateCheck</span><span class="o">)</span>
+</pre></div>
+</div>
+<p>You can then build your requests just like you’re used to:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">scn</span> <span class="k">=</span> <span class="n">scenario</span><span class="o">(</span><span class="s">&quot;Scenario Name&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">exec</span><span class="o">(</span><span class="n">jsfGet</span><span class="o">(</span><span class="s">&quot;request_1&quot;</span><span class="o">,</span> <span class="s">&quot;/showcase-labs/ui/pprUpdate.jsf&quot;</span><span class="o">))</span>
+  <span class="o">.</span><span class="n">pause</span><span class="o">(</span><span class="mi">80</span> <span class="n">milliseconds</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">exec</span><span class="o">(</span>
+    <span class="n">jsfPost</span><span class="o">(</span><span class="s">&quot;request_2&quot;</span><span class="o">,</span> <span class="s">&quot;/showcase-labs/ui/pprUpdate.jsf&quot;</span><span class="o">)</span>
+      <span class="o">.</span><span class="n">formParam</span><span class="o">(</span><span class="s">&quot;javax.faces.partial.ajax&quot;</span><span class="o">,</span> <span class="s">&quot;true&quot;</span><span class="o">)</span>
+      <span class="o">.</span><span class="n">formParam</span><span class="o">(</span><span class="s">&quot;javax.faces.source&quot;</span><span class="o">,</span> <span class="s">&quot;form:btn&quot;</span><span class="o">)</span>
+      <span class="o">.</span><span class="n">formParam</span><span class="o">(</span><span class="s">&quot;javax.faces.partial.execute&quot;</span><span class="o">,</span> <span class="s">&quot;@all&quot;</span><span class="o">)</span>
+      <span class="o">.</span><span class="n">formParam</span><span class="o">(</span><span class="s">&quot;javax.faces.partial.render&quot;</span><span class="o">,</span> <span class="s">&quot;form:display&quot;</span><span class="o">)</span>
+      <span class="o">.</span><span class="n">formParam</span><span class="o">(</span><span class="s">&quot;form:btn&quot;</span><span class="o">,</span> <span class="s">&quot;form:btn&quot;</span><span class="o">)</span>
+      <span class="o">.</span><span class="n">formParam</span><span class="o">(</span><span class="s">&quot;form&quot;</span><span class="o">,</span> <span class="s">&quot;form&quot;</span><span class="o">)</span>
+      <span class="o">.</span><span class="n">formParam</span><span class="o">(</span><span class="s">&quot;form:name&quot;</span><span class="o">,</span> <span class="s">&quot;foo&quot;</span><span class="o">))</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The sample above is taken from the <a class="reference external" href="http://www.primefaces.org/showcase-labs">Primefaces demo</a>.</p>
+</div>
+<p>See Rafael Pestano’s <a class="reference external" href="https://github.com/rmpestano/gatling-jsf-demo">demo project</a> for a complete sample.</p>
+</div>
+<div class="section" id="trinidad">
+<h2>Trinidad<a class="headerlink" href="#trinidad" title="Permalink to this headline">¶</a></h2>
+<p>Trinidad’s <code class="docutils literal"><span class="pre">_afPfm</span></code> query parameter can be handled in a similar fashion:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">jsfPageFlowCheck</span> <span class="k">=</span> <span class="n">regex</span><span class="o">(</span><span class="s">&quot;&quot;&quot;\?_afPfm=([^&quot;]*)&quot;&quot;&quot;&quot;</span><span class="o">).</span><span class="n">saveAs</span><span class="o">(</span><span class="s">&quot;afPfm&quot;</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">jsfViewStateCheck</span> <span class="k">=</span> <span class="n">regex</span><span class="o">(</span><span class="s">&quot;&quot;&quot;=&quot;javax.faces.ViewState&quot; value=&quot;([^&quot;]*)&quot;&quot;&quot;&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">saveAs</span><span class="o">(</span><span class="s">&quot;viewState&quot;</span><span class="o">)</span>
+
+<span class="k">def</span> <span class="n">jsfGet</span><span class="o">(</span><span class="n">name</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">url</span><span class="k">:</span> <span class="kt">Expression</span><span class="o">[</span><span class="kt">String</span><span class="o">])</span> <span class="k">=</span> <span class="n">http</span><span class="o">(</span><span class="n">name</span><span class="o">).</span><span class="n">get</span><span class="o">(</span><span class="n">url</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">check</span><span class="o">(</span><span class="n">jsfViewStateCheck</span><span class="o">)</span>
+<span class="k">def</span> <span class="n">jsfPost</span><span class="o">(</span><span class="n">name</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">url</span><span class="k">:</span> <span class="kt">Expression</span><span class="o">[</span><span class="kt">String</span><span class="o">])</span> <span class="k">=</span> <span class="n">http</span><span class="o">(</span><span class="n">name</span><span class="o">).</span><span class="n">post</span><span class="o">(</span><span class="n">url</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">formParam</span><span class="o">(</span><span class="s">&quot;javax.faces.ViewState&quot;</span><span class="o">,</span> <span class="s">&quot;${viewState}&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">check</span><span class="o">(</span><span class="n">jsfViewStateCheck</span><span class="o">).</span><span class="n">check</span><span class="o">(</span><span class="n">jsfPageFlowCheck</span><span class="o">)</span>
+
+<span class="k">def</span> <span class="n">trinidadPost</span><span class="o">(</span><span class="n">name</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">url</span><span class="k">:</span> <span class="kt">Expression</span><span class="o">[</span><span class="kt">String</span><span class="o">])</span> <span class="k">=</span> <span class="n">http</span><span class="o">(</span><span class="n">name</span><span class="o">).</span><span class="n">post</span><span class="o">(</span><span class="n">url</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">formParam</span><span class="o">(</span><span class="s">&quot;javax.faces.ViewState&quot;</span><span class="o">,</span> <span class="s">&quot;${viewState}&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">queryParam</span><span class="o">(</span><span class="s">&quot;_afPfm&quot;</span><span class="o">,</span> <span class="s">&quot;${afPfm}&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">check</span><span class="o">(</span><span class="n">jsfViewStateCheck</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">check</span><span class="o">(</span><span class="n">jsfPageFlowCheck</span><span class="o">)</span>
+<span class="k">def</span> <span class="n">trinidadDownload</span><span class="o">(</span><span class="n">name</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">url</span><span class="k">:</span> <span class="kt">Expression</span><span class="o">[</span><span class="kt">String</span><span class="o">])</span> <span class="k">=</span> <span class="n">http</span><span class="o">(</span><span class="n">name</span><span class="o">).</span><span class="n">post</span><span class="o">(</span><span class="n">url</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">formParam</span><span class="o">(</span><span class="s">&quot;javax.faces.ViewState&quot;</span><span class="o">,</span> <span class="s">&quot;${viewState}&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">queryParam</span><span class="o">(</span><span class="s">&quot;_afPfm&quot;</span><span class="o">,</span> <span class="s">&quot;${afPfm}&quot;</span><span class="o">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+          
+        </div>
+      </article>
+    </main>
+  </div>
+</div>
+
+
+<div class="sidebar-wrap col-md-3 content-left-wrap">
+  <div id="secondary" class="widget-area" role="complementary" itemscope="itemscope"
+       itemtype="http://schema.org/WPSideBar">
+    <aside id="search-2" class="widget widget_search">
+      <form role="form" method="get" class="search-form" action="../search.html">
+        <label>
+          <span class="screen-reader-text">Search through the documentation&nbsp;:</span>
+          <input type="search" class="search-field" placeholder="Search the documentation" name="q">
+        </label>
+        <input type="submit" class="search-submit" value="Search">
+      </form>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Table of Content</h1>
+      <ul>
+<li><a class="reference internal" href="#">Handling JSF</a><ul>
+<li><a class="reference internal" href="#basic-jsf">Basic JSF</a></li>
+<li><a class="reference internal" href="#trinidad">Trinidad</a></li>
+</ul>
+</li>
+</ul>
+
+    </aside>
+    
+    <aside class="widget">
+      <h1 class="widget-title">Previous topic</h1>
+      <ul>
+        <li>
+          <a href="passing_parameters.html" title="Previous Chapter: Passing Parameters">
+            Passing Parameters
+          </a>
+        </li>
+      </ul>
+    </aside>
+    
+    
+    <aside class="widget">
+      <h1 class="widget-title">Next topic</h1>
+      <ul>
+        <li>
+          <a href="../developing_gatling/index.html" title="Next Chapter: Information for Gatling Developers">
+            Information for Gatli...
+          </a>
+        </li>
+      </ul>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Contribute</h1>
+      <ul>
+        <li>
+          <a href="https://github.com/gatling/gatling/edit/master/src/sphinx/cookbook/handling_jsf.rst">Edit this page on Github</a>
+        </li>
+      </ul>
+    </aside>
+  </div>
+</div>
+
+
+
+
+

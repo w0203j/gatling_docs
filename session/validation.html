@@ -1,0 +1,187 @@
+
+
+<ol class="breadcrumb">
+  <li><a href="../index.html">Gatling documentation</a></li>
+  <li><a href="index.html" accesskey="U">
+    Session
+    </a>
+  </li>
+  <li><a href="">
+    Validation
+  </a></li>
+</ol>
+
+<div class="content-left-wrap col-md-9">
+  <div id="primary" class="content-area">
+    <main itemscope="" itemtype="http://schema.org/WebPageElement" itemprop="mainContentOfPage" id="main"
+          class="site-main">
+      <article id="documentation" class="type-post status-publish format-standard hentry category-non-classe">
+        <header class="entry-header">
+          <h1 class="entry-title" itemprop="headline">Validation</h1>
+        </header>
+        <div class="entry-content" itemprop="text">
+          
+          <div class="section" id="validation">
+<span id="id1"></span>
+<div class="section" id="concept">
+<span id="validation-concept"></span><h2>Concept<a class="headerlink" href="#concept" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal"><span class="pre">Validation</span></code> is an abstraction for describing something that can either be a valid result, or an error message.
+Scalaz has a great implementation, but Gatling has its own, less powerful but much more simple.</p>
+<p>The benefit of using this abstraction is that it’s composable, so one can chain operations that consume and produce validations without having to determine on every operation if it’s actually dealing with a succeeding operation or not.</p>
+<p><code class="docutils literal"><span class="pre">Validation[T]</span></code> has a type parameter <code class="docutils literal"><span class="pre">T</span></code> that is the type of the value in case of a success.</p>
+<p>It has 2 implementations:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">Success[T](value:</span> <span class="pre">T)</span></code> that wraps a value in case of a success</li>
+<li><code class="docutils literal"><span class="pre">Failure(message:</span> <span class="pre">String)</span></code> that wraps a String error message</li>
+</ul>
+<p>The goal of such an abstraction is to deal with “unexpected results” in a composable and cheap way instead of using Exceptions.</p>
+</div>
+<div class="section" id="usage">
+<span id="validation-usage"></span><h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="creating-instances">
+<h3>Creating instances<a class="headerlink" href="#creating-instances" title="Permalink to this headline">¶</a></h3>
+<p>First, import the <code class="docutils literal"><span class="pre">validation</span></code> package:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">import</span> <span class="nn">io.gatling.commons.validation._</span>
+</pre></div>
+</div>
+<p>Then, you can either directly create new instance of the case classes:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">foo</span><span class="k">:</span> <span class="kt">Validation</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Success</span><span class="o">(</span><span class="s">&quot;foo&quot;</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">bar</span><span class="k">:</span> <span class="kt">Validation</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Failure</span><span class="o">(</span><span class="s">&quot;errorMessage&quot;</span><span class="o">)</span>
+</pre></div>
+</div>
+<p>or use the helpers:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">foo</span><span class="k">:</span> <span class="kt">Validation</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="s">&quot;foo&quot;</span><span class="o">.</span><span class="n">success</span>
+<span class="k">val</span> <span class="n">bar</span><span class="k">:</span> <span class="kt">Validation</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="s">&quot;errorMessage&quot;</span><span class="o">.</span><span class="n">failure</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="manipulating">
+<h3>Manipulating<a class="headerlink" href="#manipulating" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal"><span class="pre">Validation</span></code> can be used with pattern matching:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="n">display</span><span class="o">(</span><span class="n">v</span><span class="k">:</span> <span class="kt">Validation</span><span class="o">[</span><span class="kt">String</span><span class="o">])</span> <span class="k">=</span> <span class="n">v</span> <span class="k">match</span> <span class="o">{</span>
+  <span class="k">case</span> <span class="nc">Success</span><span class="o">(</span><span class="n">string</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">println</span><span class="o">(</span><span class="s">&quot;success: &quot;</span> <span class="o">+</span> <span class="n">string</span><span class="o">)</span>
+  <span class="k">case</span> <span class="nc">Failure</span><span class="o">(</span><span class="n">error</span><span class="o">)</span>  <span class="k">=&gt;</span> <span class="n">println</span><span class="o">(</span><span class="s">&quot;failure: &quot;</span> <span class="o">+</span> <span class="n">error</span><span class="o">)</span>
+<span class="o">}</span>
+
+<span class="k">val</span> <span class="n">foo</span> <span class="k">=</span> <span class="nc">Success</span><span class="o">(</span><span class="s">&quot;foo&quot;</span><span class="o">)</span>
+<span class="n">display</span><span class="o">(</span><span class="n">foo</span><span class="o">)</span> <span class="c1">// will print success: foo</span>
+
+<span class="k">val</span> <span class="n">bar</span> <span class="k">=</span> <span class="nc">Failure</span><span class="o">(</span><span class="s">&quot;myErrorMessage&quot;</span><span class="o">)</span>
+<span class="n">display</span><span class="o">(</span><span class="n">bar</span><span class="o">)</span> <span class="c1">// will print failure: myErrorMessage</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">Validation</span></code> has the standard Scala “monadic” methods such as:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">map</span></code>:expects a function that takes the value if it’s a success and return a value.</li>
+<li><code class="docutils literal"><span class="pre">flatMap</span></code>: expects a function that takes the value if it’s a success and return a new <code class="docutils literal"><span class="pre">Validation</span></code></li>
+</ul>
+<p>Basically, <code class="docutils literal"><span class="pre">map</span></code> is used to <strong>chain with an operation that can’t fail</strong>, hence return a raw value:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">foo</span> <span class="k">=</span> <span class="nc">Success</span><span class="o">(</span><span class="mi">1</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">bar</span> <span class="k">=</span> <span class="n">foo</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="n">value</span> <span class="k">=&gt;</span> <span class="n">value</span> <span class="o">+</span> <span class="mi">2</span><span class="o">)</span>
+<span class="n">println</span><span class="o">(</span><span class="n">bar</span><span class="o">)</span> <span class="c1">// will print Success(3)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">flatMap</span></code> is used to <strong>chain with an operation that can fail</strong>, hence return a <code class="docutils literal"><span class="pre">Validation</span></code>:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">foo</span> <span class="k">=</span> <span class="nc">Success</span><span class="o">(</span><span class="s">&quot;foo&quot;</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">bar</span> <span class="k">=</span> <span class="n">foo</span><span class="o">.</span><span class="n">flatMap</span><span class="o">(</span><span class="n">value</span> <span class="k">=&gt;</span> <span class="nc">Success</span><span class="o">(</span><span class="s">&quot;bar&quot;</span><span class="o">))</span>
+<span class="n">println</span><span class="o">(</span><span class="n">bar</span><span class="o">)</span> <span class="c1">// will print Success(&quot;bar&quot;)</span>
+
+<span class="k">val</span> <span class="n">baz</span> <span class="k">=</span> <span class="n">foo</span><span class="o">.</span><span class="n">flatMap</span><span class="o">(</span><span class="n">value</span> <span class="k">=&gt;</span> <span class="nc">Failure</span><span class="o">(</span><span class="s">&quot;error&quot;</span><span class="o">))</span>
+<span class="n">println</span><span class="o">(</span><span class="n">baz</span><span class="o">)</span> <span class="c1">// will print Failure(&quot;error&quot;)</span>
+</pre></div>
+</div>
+<p>In both case, the chained function is not called if the original <code class="docutils literal"><span class="pre">Validation</span></code> was a <code class="docutils literal"><span class="pre">Failure</span></code>:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">foo</span><span class="k">:</span> <span class="kt">Validation</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Failure</span><span class="o">(</span><span class="s">&quot;error&quot;</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">bar</span> <span class="k">=</span> <span class="n">foo</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="n">value</span> <span class="k">=&gt;</span> <span class="n">value</span> <span class="o">+</span> <span class="mi">2</span><span class="o">)</span>
+<span class="n">println</span><span class="o">(</span><span class="n">bar</span><span class="o">)</span> <span class="c1">// will print Failure(&quot;error&quot;)</span>
+</pre></div>
+</div>
+<p>You can also use Scala <em>“for comprehension”</em> syntactic sugar.</p>
+<p>For the impatient, just consider it’s like a super loop that can iterate other multiple objects of the same kind (like embedded loops) and can iterate over other things that collections, such as <code class="docutils literal"><span class="pre">Validation</span></code>s or <code class="docutils literal"><span class="pre">Option</span></code>s.</p>
+<p>Here’s what the above example would look like using a <em>“for comprehension”</em>:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">foo</span><span class="k">:</span> <span class="kt">Validation</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="o">???</span>
+<span class="k">val</span> <span class="n">bar</span><span class="k">:</span> <span class="kt">Validation</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="o">???</span>
+
+<span class="k">val</span> <span class="n">baz</span><span class="k">:</span> <span class="kt">Validation</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="k">for</span> <span class="o">{</span>
+  <span class="n">fooValue</span> <span class="k">&lt;-</span> <span class="n">foo</span>
+  <span class="n">barValue</span> <span class="k">&lt;-</span> <span class="n">bar</span>
+<span class="o">}</span> <span class="k">yield</span> <span class="n">fooValue</span> <span class="o">+</span> <span class="n">barValue</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+          
+        </div>
+      </article>
+    </main>
+  </div>
+</div>
+
+
+<div class="sidebar-wrap col-md-3 content-left-wrap">
+  <div id="secondary" class="widget-area" role="complementary" itemscope="itemscope"
+       itemtype="http://schema.org/WPSideBar">
+    <aside id="search-2" class="widget widget_search">
+      <form role="form" method="get" class="search-form" action="../search.html">
+        <label>
+          <span class="screen-reader-text">Search through the documentation&nbsp;:</span>
+          <input type="search" class="search-field" placeholder="Search the documentation" name="q">
+        </label>
+        <input type="submit" class="search-submit" value="Search">
+      </form>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Table of Content</h1>
+      <ul>
+<li><a class="reference internal" href="#">Validation</a><ul>
+<li><a class="reference internal" href="#concept">Concept</a></li>
+<li><a class="reference internal" href="#usage">Usage</a><ul>
+<li><a class="reference internal" href="#creating-instances">Creating instances</a></li>
+<li><a class="reference internal" href="#manipulating">Manipulating</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    </aside>
+    
+    <aside class="widget">
+      <h1 class="widget-title">Previous topic</h1>
+      <ul>
+        <li>
+          <a href="feeder.html" title="Previous Chapter: Feeders">
+            Feeders
+          </a>
+        </li>
+      </ul>
+    </aside>
+    
+    
+    <aside class="widget">
+      <h1 class="widget-title">Next topic</h1>
+      <ul>
+        <li>
+          <a href="../http/index.html" title="Next Chapter: HTTP">
+            HTTP
+          </a>
+        </li>
+      </ul>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Contribute</h1>
+      <ul>
+        <li>
+          <a href="https://github.com/gatling/gatling/edit/master/src/sphinx/session/validation.rst">Edit this page on Github</a>
+        </li>
+      </ul>
+    </aside>
+  </div>
+</div>
+
+
+
+
+

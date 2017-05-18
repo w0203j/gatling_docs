@@ -1,0 +1,180 @@
+
+
+<ol class="breadcrumb">
+  <li><a href="../index.html">Gatling documentation</a></li>
+  <li><a href="index.html" accesskey="U">
+    General
+    </a>
+  </li>
+  <li><a href="">
+    Operations
+  </a></li>
+</ol>
+
+<div class="content-left-wrap col-md-9">
+  <div id="primary" class="content-area">
+    <main itemscope="" itemtype="http://schema.org/WebPageElement" itemprop="mainContentOfPage" id="main"
+          class="site-main">
+      <article id="documentation" class="type-post status-publish format-standard hentry category-non-classe">
+        <header class="entry-header">
+          <h1 class="entry-title" itemprop="headline">Operations</h1>
+        </header>
+        <div class="entry-content" itemprop="text">
+          
+          <div class="section" id="operations">
+<span id="id1"></span>
+<div class="section" id="java-version">
+<h2>Java Version<a class="headerlink" href="#java-version" title="Permalink to this headline">¶</a></h2>
+<p>Gatling is mostly tested against JDK8 packages provided by Oracle.
+Gatling requires <strong>JDK8</strong>. We recommend that you use an up-to-date JDK.</p>
+<p>If some launch scripts options are not available on your JVM, e.g. because you run a 32 bit version, please edit the scripts and remove the unsupported options.</p>
+</div>
+<div class="section" id="ipv4-vs-ipv6">
+<h2>IPv4 vs IPv6<a class="headerlink" href="#ipv4-vs-ipv6" title="Permalink to this headline">¶</a></h2>
+<p>IPv6 (enabled by default on Java) was found to sometimes cause some performance issues, so the launch scripts disable it with the following options:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="o">-</span><span class="nc">Djava</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">preferIPv4Stack</span><span class="k">=</span><span class="kc">true</span>
+<span class="o">-</span><span class="nc">Djava</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">preferIPv6Addresses</span><span class="k">=</span><span class="kc">false</span>
+</pre></div>
+</div>
+<p>If you really need to prefer IPv6, please edit the launch scripts.</p>
+</div>
+<div class="section" id="os-tuning">
+<h2>OS Tuning<a class="headerlink" href="#os-tuning" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Those instructions below are excerpts from the great Riak documentation.
+Please refer to <a class="reference external" href="http://docs.basho.com/riak/latest/ops/tuning/open-files-limit/">Open Files Limit</a>
+and <a class="reference external" href="http://docs.basho.com/riak/latest/ops/tuning/linux/#Kernel-and-Network-Tuning">Kernel and Network Tuning</a>
+sections for more details or for instructions for OS X.</p>
+</div>
+<p>Gatling can consume a very large number of open file handles during normal operation.
+Typically, operating systems limit this number, so you may have to tweak a few options in your chosen OS so that you can open <em>many</em> new sockets and achieve heavy load.</p>
+<div class="section" id="id2">
+<h3>Open Files Limit<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p>Most operating systems can change the open-files limit using the <code class="docutils literal"><span class="pre">ulimit</span> <span class="pre">-n</span></code> command. Example:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">$</span> <span class="n">ulimit</span> <span class="o">-</span><span class="n">n</span> <span class="mi">65536</span>
+</pre></div>
+</div>
+<p>However, this only changes the limit for the current shell session. Changing the limit on a system-wide, permanent basis varies more between systems.</p>
+<p>To permanently set the soft and hard values <em>for all users of the system</em> to allow for up to 65536 open files ; edit <code class="docutils literal"><span class="pre">/etc/security/limits.conf</span></code> and append the following two lines:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="o">*</span>       <span class="n">soft</span>    <span class="n">nofile</span>  <span class="mi">65535</span>
+<span class="o">*</span>       <span class="n">hard</span>    <span class="n">nofile</span>  <span class="mi">65535</span>
+</pre></div>
+</div>
+<p>Save the file. Start a new session so that the limits take effect. You can now verify with <code class="docutils literal"><span class="pre">ulimit</span> <span class="pre">-a</span></code> that the limits are correctly set.</p>
+<p>For Debian and Ubuntu, you should enable PAM user limits. To do so, add <code class="docutils literal"><span class="pre">session</span> <span class="pre">required</span> <span class="pre">pam_limits.so</span></code> in:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">/etc/pam.d/common-session</span></code></li>
+<li><code class="docutils literal"><span class="pre">/etc/pam.d/common-session-noninteractive</span></code> if the file exists</li>
+<li><code class="docutils literal"><span class="pre">/etc/pam.d/sshd</span></code> if you access the machine via SSH</li>
+</ul>
+<p>Also, if accessing the machine via SSH, be sure to have <code class="docutils literal"><span class="pre">UseLogin</span> <span class="pre">yes</span></code> in <code class="docutils literal"><span class="pre">/etc/ssh/sshd_config</span></code></p>
+<p>For more tuning, you may want to do the following:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span># more ports for testing
+sudo sysctl -w net.ipv4.ip_local_port_range=&quot;1025 65535&quot;
+
+# increase the maximum number of possible open file descriptors:
+echo 300000 | sudo tee /proc/sys/fs/nr_open
+echo 300000 | sudo tee /proc/sys/fs/file-max
+</pre></div>
+</div>
+</div>
+<div class="section" id="id3">
+<h3>Kernel and Network Tuning<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p>Consider tuning kernel and network and add this kind of following settings in /etc/sysctl.conf:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">net</span><span class="o">.</span><span class="n">ipv4</span><span class="o">.</span><span class="n">tcp_max_syn_backlog</span> <span class="k">=</span> <span class="mi">40000</span>
+<span class="n">net</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">somaxconn</span> <span class="k">=</span> <span class="mi">40000</span>
+<span class="n">net</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">wmem_default</span> <span class="k">=</span> <span class="mi">8388608</span>
+<span class="n">net</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">rmem_default</span> <span class="k">=</span> <span class="mi">8388608</span>
+<span class="n">net</span><span class="o">.</span><span class="n">ipv4</span><span class="o">.</span><span class="n">tcp_sack</span> <span class="k">=</span> <span class="mi">1</span>
+<span class="n">net</span><span class="o">.</span><span class="n">ipv4</span><span class="o">.</span><span class="n">tcp_window_scaling</span> <span class="k">=</span> <span class="mi">1</span>
+<span class="n">net</span><span class="o">.</span><span class="n">ipv4</span><span class="o">.</span><span class="n">tcp_fin_timeout</span> <span class="k">=</span> <span class="mi">15</span>
+<span class="n">net</span><span class="o">.</span><span class="n">ipv4</span><span class="o">.</span><span class="n">tcp_keepalive_intvl</span> <span class="k">=</span> <span class="mi">30</span>
+<span class="n">net</span><span class="o">.</span><span class="n">ipv4</span><span class="o">.</span><span class="n">tcp_tw_reuse</span> <span class="k">=</span> <span class="mi">1</span>
+<span class="n">net</span><span class="o">.</span><span class="n">ipv4</span><span class="o">.</span><span class="n">tcp_moderate_rcvbuf</span> <span class="k">=</span> <span class="mi">1</span>
+<span class="n">net</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">rmem_max</span> <span class="k">=</span> <span class="mi">134217728</span>
+<span class="n">net</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">wmem_max</span> <span class="k">=</span> <span class="mi">134217728</span>
+<span class="n">net</span><span class="o">.</span><span class="n">ipv4</span><span class="o">.</span><span class="n">tcp_mem</span>  <span class="k">=</span> <span class="mi">134217728</span> <span class="mi">134217728</span> <span class="mi">134217728</span>
+<span class="n">net</span><span class="o">.</span><span class="n">ipv4</span><span class="o">.</span><span class="n">tcp_rmem</span> <span class="k">=</span> <span class="mi">4096</span> <span class="mi">277750</span> <span class="mi">134217728</span>
+<span class="n">net</span><span class="o">.</span><span class="n">ipv4</span><span class="o">.</span><span class="n">tcp_wmem</span> <span class="k">=</span> <span class="mi">4096</span> <span class="mi">277750</span> <span class="mi">134217728</span>
+<span class="n">net</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">netdev_max_backlog</span> <span class="k">=</span> <span class="mi">300000</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+          
+        </div>
+      </article>
+    </main>
+  </div>
+</div>
+
+
+<div class="sidebar-wrap col-md-3 content-left-wrap">
+  <div id="secondary" class="widget-area" role="complementary" itemscope="itemscope"
+       itemtype="http://schema.org/WPSideBar">
+    <aside id="search-2" class="widget widget_search">
+      <form role="form" method="get" class="search-form" action="../search.html">
+        <label>
+          <span class="screen-reader-text">Search through the documentation&nbsp;:</span>
+          <input type="search" class="search-field" placeholder="Search the documentation" name="q">
+        </label>
+        <input type="submit" class="search-submit" value="Search">
+      </form>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Table of Content</h1>
+      <ul>
+<li><a class="reference internal" href="#">Operations</a><ul>
+<li><a class="reference internal" href="#java-version">Java Version</a></li>
+<li><a class="reference internal" href="#ipv4-vs-ipv6">IPv4 vs IPv6</a></li>
+<li><a class="reference internal" href="#os-tuning">OS Tuning</a><ul>
+<li><a class="reference internal" href="#id2">Open Files Limit</a></li>
+<li><a class="reference internal" href="#id3">Kernel and Network Tuning</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    </aside>
+    
+    <aside class="widget">
+      <h1 class="widget-title">Previous topic</h1>
+      <ul>
+        <li>
+          <a href="bundle_structure.html" title="Previous Chapter: Bundle structure">
+            Bundle structure
+          </a>
+        </li>
+      </ul>
+    </aside>
+    
+    
+    <aside class="widget">
+      <h1 class="widget-title">Next topic</h1>
+      <ul>
+        <li>
+          <a href="configuration.html" title="Next Chapter: Configuration">
+            Configuration
+          </a>
+        </li>
+      </ul>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Contribute</h1>
+      <ul>
+        <li>
+          <a href="https://github.com/gatling/gatling/edit/master/src/sphinx/general/operations.rst">Edit this page on Github</a>
+        </li>
+      </ul>
+    </aside>
+  </div>
+</div>
+
+
+
+
+

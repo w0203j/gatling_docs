@@ -1,0 +1,138 @@
+
+
+<ol class="breadcrumb">
+  <li><a href="../index.html">Gatling documentation</a></li>
+  <li><a href="index.html" accesskey="U">
+    Information for Gatling Developers
+    </a>
+  </li>
+  <li><a href="">
+    Developer Guidelines
+  </a></li>
+</ol>
+
+<div class="content-left-wrap col-md-9">
+  <div id="primary" class="content-area">
+    <main itemscope="" itemtype="http://schema.org/WebPageElement" itemprop="mainContentOfPage" id="main"
+          class="site-main">
+      <article id="documentation" class="type-post status-publish format-standard hentry category-non-classe">
+        <header class="entry-header">
+          <h1 class="entry-title" itemprop="headline">Developer Guidelines</h1>
+        </header>
+        <div class="entry-content" itemprop="text">
+          
+          <div class="section" id="developer-guidelines">
+<span id="dev-guidelines"></span>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">First read <a class="reference external" href="https://github.com/gatling/gatling/blob/master/CONTRIBUTING.md">Gatling contribution guidelines</a></p>
+</div>
+<div class="section" id="code-style">
+<h2>Code Style<a class="headerlink" href="#code-style" title="Permalink to this headline">¶</a></h2>
+<p>The Gatling code style follows the <a class="reference external" href="http://docs.scala-lang.org/style/">Scala Style Guide</a>.</p>
+<p>As Gatling uses <cite>Scalariform</cite> as part of the SBT build, you don’t need to worry about formatting the code :
+running <code class="docutils literal"><span class="pre">sbt</span> <span class="pre">compile</span></code> will format the code automatically.</p>
+</div>
+<div class="section" id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h2>
+<p>All Gatling tests use <a class="reference external" href="http://www.scalatest.org">ScalaTest</a>.</p>
+<p>A few helpers are provided for testing actors or some of Gatling’s APIs:</p>
+<div class="section" id="basespec">
+<h3><code class="docutils literal"><span class="pre">BaseSpec</span></code><a class="headerlink" href="#basespec" title="Permalink to this headline">¶</a></h3>
+<p>BaseSpec must be used on every test, as it sets out the structure and commons helpers for Gatling tests</p>
+</div>
+<div class="section" id="validationvalues">
+<h3><code class="docutils literal"><span class="pre">ValidationValues</span></code><a class="headerlink" href="#validationvalues" title="Permalink to this headline">¶</a></h3>
+<p>When tests involves Gatling’s <code class="docutils literal"><span class="pre">Validation</span></code> API, <code class="docutils literal"><span class="pre">ValidationValues</span></code> provides helpers that allows to match on the <code class="docutils literal"><span class="pre">Validation</span></code>’s result.</p>
+<p>Example: <a class="reference external" href="https://github.com/gatling/gatling/blob/master/gatling-core/src/test/scala/io/gatling/core/session/el/ELSpec.scala">ELSpec</a></p>
+</div>
+<div class="section" id="akkaspec">
+<h3><code class="docutils literal"><span class="pre">AkkaSpec</span></code><a class="headerlink" href="#akkaspec" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal"><span class="pre">ActorSupport</span></code> is meant to be used when Akka actors are to be involved in the test.</p>
+<p><code class="docutils literal"><span class="pre">ActorSupport</span></code> relies on Akka’s TestKit (documentation <a class="reference external" href="http://doc.akka.io/docs/akka/2.2.4/scala/testing.html">here</a>).</p>
+<p>Example: <a class="reference external" href="https://github.com/gatling/gatling/blob/master/gatling-core/src/test/scala/io/gatling/core/action/PaceSpec.scala">PaceSpec</a></p>
+</div>
+<div class="section" id="httpspec">
+<h3><code class="docutils literal"><span class="pre">HttpSpec</span></code><a class="headerlink" href="#httpspec" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal"><span class="pre">HttpSpec</span></code> allows to configure and expose a simple Netty server that Gatling can make HTTP requests against.</p>
+<p><code class="docutils literal"><span class="pre">HttpSpec</span></code> also exposes methods to assert that requests were indeed made to the server.</p>
+<p>Example: <a class="reference external" href="https://github.com/gatling/gatling/blob/master/gatling-http/src/test/scala/io/gatling/http/integration/HttpIntegrationSpec.scala">HttpIntegrationSpec</a></p>
+</div>
+</div>
+</div>
+
+          
+        </div>
+      </article>
+    </main>
+  </div>
+</div>
+
+
+<div class="sidebar-wrap col-md-3 content-left-wrap">
+  <div id="secondary" class="widget-area" role="complementary" itemscope="itemscope"
+       itemtype="http://schema.org/WPSideBar">
+    <aside id="search-2" class="widget widget_search">
+      <form role="form" method="get" class="search-form" action="../search.html">
+        <label>
+          <span class="screen-reader-text">Search through the documentation&nbsp;:</span>
+          <input type="search" class="search-field" placeholder="Search the documentation" name="q">
+        </label>
+        <input type="submit" class="search-submit" value="Search">
+      </form>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Table of Content</h1>
+      <ul>
+<li><a class="reference internal" href="#">Developer Guidelines</a><ul>
+<li><a class="reference internal" href="#code-style">Code Style</a></li>
+<li><a class="reference internal" href="#testing">Testing</a><ul>
+<li><a class="reference internal" href="#basespec"><code class="docutils literal"><span class="pre">BaseSpec</span></code></a></li>
+<li><a class="reference internal" href="#validationvalues"><code class="docutils literal"><span class="pre">ValidationValues</span></code></a></li>
+<li><a class="reference internal" href="#akkaspec"><code class="docutils literal"><span class="pre">AkkaSpec</span></code></a></li>
+<li><a class="reference internal" href="#httpspec"><code class="docutils literal"><span class="pre">HttpSpec</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    </aside>
+    
+    <aside class="widget">
+      <h1 class="widget-title">Previous topic</h1>
+      <ul>
+        <li>
+          <a href="building_gatling.html" title="Previous Chapter: Building Gatling">
+            Building Gatling
+          </a>
+        </li>
+      </ul>
+    </aside>
+    
+    
+    <aside class="widget">
+      <h1 class="widget-title">Next topic</h1>
+      <ul>
+        <li>
+          <a href="doc_guidelines.html" title="Next Chapter: Documentation Guidelines">
+            Documentation Guidelines
+          </a>
+        </li>
+      </ul>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Contribute</h1>
+      <ul>
+        <li>
+          <a href="https://github.com/gatling/gatling/edit/master/src/sphinx/developing_gatling/dev_guidelines.rst">Edit this page on Github</a>
+        </li>
+      </ul>
+    </aside>
+  </div>
+</div>
+
+
+
+
+

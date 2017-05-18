@@ -1,0 +1,214 @@
+
+
+<ol class="breadcrumb">
+  <li><a href="../index.html">Gatling documentation</a></li>
+  <li><a href="index.html" accesskey="U">
+    HTTP
+    </a>
+  </li>
+  <li><a href="">
+    SSE (Server Sent Event)
+  </a></li>
+</ol>
+
+<div class="content-left-wrap col-md-9">
+  <div id="primary" class="content-area">
+    <main itemscope="" itemtype="http://schema.org/WebPageElement" itemprop="mainContentOfPage" id="main"
+          class="site-main">
+      <article id="documentation" class="type-post status-publish format-standard hentry category-non-classe">
+        <header class="entry-header">
+          <h1 class="entry-title" itemprop="headline">SSE (Server Sent Event)</h1>
+        </header>
+        <div class="entry-content" itemprop="text">
+          
+          <div class="section" id="sse-server-sent-event">
+<span id="http-sse"></span>
+<p>SSE support is an extension to the HTTP DSL, whose entry point is the <code class="docutils literal"><span class="pre">sse(requestName:</span> <span class="pre">Expression[String])</span></code> method.</p>
+<div class="section" id="common-operations">
+<h2>Common operations<a class="headerlink" href="#common-operations" title="Permalink to this headline">¶</a></h2>
+<p id="http-sse-name">If you want to deal with several SSE streams per virtual users, you have to give them a name and pass this name on each SSE operation:</p>
+<p><code class="docutils literal"><span class="pre">sseName(name:</span> <span class="pre">String)</span></code></p>
+<p>For example:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">sse</span><span class="o">(</span><span class="s">&quot;SSE Operation&quot;</span><span class="o">).</span><span class="n">sseName</span><span class="o">(</span><span class="s">&quot;myCustomName&quot;</span><span class="o">)</span>
+</pre></div>
+</div>
+<p>Of course, this step is not required if you deal with one single SSE stream per virtual user.</p>
+<div class="section" id="open">
+<span id="http-sse-open"></span><h3>Open<a class="headerlink" href="#open" title="Permalink to this headline">¶</a></h3>
+<p>The first thing is to get a server sent event:</p>
+<p><code class="docutils literal"><span class="pre">open(url:</span> <span class="pre">Expression[String])</span></code></p>
+<p>For example:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">exec</span><span class="o">(</span><span class="n">sse</span><span class="o">(</span><span class="s">&quot;Get SSE&quot;</span><span class="o">).</span><span class="n">open</span><span class="o">(</span><span class="s">&quot;/stocks/prices&quot;</span><span class="o">))</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Gatling automatically sets <code class="docutils literal"><span class="pre">Accept</span></code> header to <code class="docutils literal"><span class="pre">text/event-stream</span></code> and <code class="docutils literal"><span class="pre">Cache-Control</span></code> to <code class="docutils literal"><span class="pre">no-cache</span></code>.</p>
+</div>
+</div>
+<div class="section" id="close">
+<span id="http-sse-close"></span><h3>Close<a class="headerlink" href="#close" title="Permalink to this headline">¶</a></h3>
+<p>When you’re done with a SSE stream, you can close it:</p>
+<p><code class="docutils literal"><span class="pre">close</span></code></p>
+<p>For example:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">exec</span><span class="o">(</span><span class="n">sse</span><span class="o">(</span><span class="s">&quot;Close SSE&quot;</span><span class="o">).</span><span class="n">close</span><span class="o">())</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="server-messages-checks">
+<h2>Server Messages: Checks<a class="headerlink" href="#server-messages-checks" title="Permalink to this headline">¶</a></h2>
+<p>Dealing with incoming messages from the server is done with checks, passed with the usual <code class="docutils literal"><span class="pre">check()</span></code> method.</p>
+<p>Gatling currently only support one check at a time per SSE stream.</p>
+<div class="section" id="set-a-check">
+<span id="http-sse-check-set"></span><h3>Set a Check<a class="headerlink" href="#set-a-check" title="Permalink to this headline">¶</a></h3>
+<p>Checks can be set in 2 ways.</p>
+<p>First, when sending a message:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">exec</span><span class="o">(</span><span class="n">sse</span><span class="o">(</span><span class="s">&quot;Get SSE&quot;</span><span class="o">).</span><span class="n">open</span><span class="o">(</span><span class="s">&quot;/stocks/prices&quot;</span><span class="o">).</span><span class="n">check</span><span class="o">(</span><span class="n">myCheck</span><span class="o">))</span>
+</pre></div>
+</div>
+<p>Then, directly from the main HTTP flow:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">exec</span><span class="o">(</span><span class="n">sse</span><span class="o">(</span><span class="s">&quot;Set Check&quot;</span><span class="o">).</span><span class="n">check</span><span class="o">(</span><span class="n">myCheck</span><span class="o">))</span>
+</pre></div>
+</div>
+<p>If a check was already registered on the server sent event at this time, it’s considered as failed and replaced with the new one.</p>
+</div>
+<div class="section" id="cancel-a-check">
+<span id="http-sse-check-cancel"></span><h3>Cancel a Check<a class="headerlink" href="#cancel-a-check" title="Permalink to this headline">¶</a></h3>
+<p>One can decide to cancel a pending check:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">exec</span><span class="o">(</span><span class="n">sse</span><span class="o">(</span><span class="s">&quot;Cancel Check&quot;</span><span class="o">).</span><span class="n">cancelCheck</span><span class="o">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="build-a-check">
+<span id="http-sse-check-build"></span><h3>Build a Check<a class="headerlink" href="#build-a-check" title="Permalink to this headline">¶</a></h3>
+<p>Now, to the matter at heart, how to build a server sent event check.</p>
+<p>SSE support uses the same checks as WebSockets.
+So, please refer to the WebSocket section <a class="reference internal" href="websocket.html#http-ws-check-build"><span class="std std-ref">Build a Check</span></a> for more details.</p>
+<p>Here are few examples:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">exec</span><span class="o">(</span><span class="n">sse</span><span class="o">(</span><span class="s">&quot;sse&quot;</span><span class="o">).</span><span class="n">open</span><span class="o">(</span><span class="s">&quot;/stocks/prices&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">check</span><span class="o">(</span><span class="n">wsAwait</span><span class="o">.</span><span class="n">within</span><span class="o">(</span><span class="mi">10</span><span class="o">).</span><span class="n">until</span><span class="o">(</span><span class="mi">1</span><span class="o">).</span><span class="n">regex</span><span class="o">(</span><span class="s">&quot;&quot;&quot;&quot;event&quot;:&quot;snapshot(.*)&quot;&quot;&quot;&quot;</span><span class="o">)))</span>
+
+<span class="n">exec</span><span class="o">(</span><span class="n">sse</span><span class="o">(</span><span class="s">&quot;sse&quot;</span><span class="o">).</span><span class="n">open</span><span class="o">(</span><span class="s">&quot;/stocks/prices&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">check</span><span class="o">(</span><span class="n">wsListen</span><span class="o">.</span><span class="n">within</span><span class="o">(</span><span class="mi">30</span> <span class="n">seconds</span><span class="o">).</span><span class="n">expect</span><span class="o">(</span><span class="mi">1</span><span class="o">)))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="reconciliate">
+<span id="http-sse-check-reconciliate"></span><h3>Reconciliate<a class="headerlink" href="#reconciliate" title="Permalink to this headline">¶</a></h3>
+<p>One complex thing is that, when using non blocking checks that save data, state is stored in a different flow than the main one.</p>
+<p>So, one has to reconciliate the main flow state and the WebSocket flow one.</p>
+<p>This can be done:</p>
+<ul class="simple">
+<li>implicitly when performing an action on the WebSocket from the main flow, such as send a message to the server</li>
+<li>explicitly with the <code class="docutils literal"><span class="pre">reconciliate</span></code> method.</li>
+</ul>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">exec</span><span class="o">(</span><span class="n">ws</span><span class="o">(</span><span class="s">&quot;Reconciliate states&quot;</span><span class="o">).</span><span class="n">reconciliate</span><span class="o">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="configuration">
+<span id="http-sse-check-conf"></span><h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
+<p>Server sent event support uses the same parameter as the HttpProtocol:</p>
+<p><code class="docutils literal"><span class="pre">baseURL(url:</span> <span class="pre">String)</span></code>: serves as root that will be prepended to all relative server sent event urls</p>
+<p><code class="docutils literal"><span class="pre">baseURLs(urls:</span> <span class="pre">String*)</span></code>: serves as round-robin roots that will be prepended to all relative server sent event urls</p>
+</div>
+<div class="section" id="example">
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<p>Here’s an example that runs against a stock market sample:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="k">val</span> <span class="n">httpConf</span> <span class="k">=</span> <span class="n">http</span>
+  <span class="o">.</span><span class="n">baseURL</span><span class="o">(</span><span class="s">&quot;http://localhost:8080/app&quot;</span><span class="o">)</span>
+
+<span class="k">val</span> <span class="n">scn</span> <span class="k">=</span> <span class="n">scenario</span><span class="o">(</span><span class="s">&quot;Server Sent Event&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">exec</span><span class="o">(</span>
+    <span class="n">sse</span><span class="o">(</span><span class="s">&quot;Stocks&quot;</span><span class="o">).</span><span class="n">open</span><span class="o">(</span><span class="s">&quot;/stocks/prices&quot;</span><span class="o">)</span>
+    <span class="o">.</span><span class="n">check</span><span class="o">(</span><span class="n">wsAwait</span><span class="o">.</span><span class="n">within</span><span class="o">(</span><span class="mi">10</span><span class="o">).</span><span class="n">until</span><span class="o">(</span><span class="mi">1</span><span class="o">).</span><span class="n">regex</span><span class="o">(</span><span class="s">&quot;&quot;&quot;&quot;event&quot;:&quot;snapshot(.*)&quot;&quot;&quot;&quot;</span><span class="o">)))</span>
+  <span class="o">.</span><span class="n">pause</span><span class="o">(</span><span class="mi">15</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">exec</span><span class="o">(</span><span class="n">sse</span><span class="o">(</span><span class="s">&quot;Close SSE&quot;</span><span class="o">).</span><span class="n">close</span><span class="o">())</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+          
+        </div>
+      </article>
+    </main>
+  </div>
+</div>
+
+
+<div class="sidebar-wrap col-md-3 content-left-wrap">
+  <div id="secondary" class="widget-area" role="complementary" itemscope="itemscope"
+       itemtype="http://schema.org/WPSideBar">
+    <aside id="search-2" class="widget widget_search">
+      <form role="form" method="get" class="search-form" action="../search.html">
+        <label>
+          <span class="screen-reader-text">Search through the documentation&nbsp;:</span>
+          <input type="search" class="search-field" placeholder="Search the documentation" name="q">
+        </label>
+        <input type="submit" class="search-submit" value="Search">
+      </form>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Table of Content</h1>
+      <ul>
+<li><a class="reference internal" href="#">SSE (Server Sent Event)</a><ul>
+<li><a class="reference internal" href="#common-operations">Common operations</a><ul>
+<li><a class="reference internal" href="#open">Open</a></li>
+<li><a class="reference internal" href="#close">Close</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#server-messages-checks">Server Messages: Checks</a><ul>
+<li><a class="reference internal" href="#set-a-check">Set a Check</a></li>
+<li><a class="reference internal" href="#cancel-a-check">Cancel a Check</a></li>
+<li><a class="reference internal" href="#build-a-check">Build a Check</a></li>
+<li><a class="reference internal" href="#reconciliate">Reconciliate</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#configuration">Configuration</a></li>
+<li><a class="reference internal" href="#example">Example</a></li>
+</ul>
+</li>
+</ul>
+
+    </aside>
+    
+    <aside class="widget">
+      <h1 class="widget-title">Previous topic</h1>
+      <ul>
+        <li>
+          <a href="websocket.html" title="Previous Chapter: WebSocket">
+            WebSocket
+          </a>
+        </li>
+      </ul>
+    </aside>
+    
+    
+    <aside class="widget">
+      <h1 class="widget-title">Next topic</h1>
+      <ul>
+        <li>
+          <a href="../jms.html" title="Next Chapter: JMS">
+            JMS
+          </a>
+        </li>
+      </ul>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Contribute</h1>
+      <ul>
+        <li>
+          <a href="https://github.com/gatling/gatling/edit/master/src/sphinx/http/sse.rst">Edit this page on Github</a>
+        </li>
+      </ul>
+    </aside>
+  </div>
+</div>
+
+
+
+
+

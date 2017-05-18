@@ -1,0 +1,324 @@
+
+
+<ol class="breadcrumb">
+  <li><a href="../index.html">Gatling documentation</a></li>
+  <li><a href="">
+    Realtime monitoring
+  </a></li>
+</ol>
+
+<div class="content-left-wrap col-md-9">
+  <div id="primary" class="content-area">
+    <main itemscope="" itemtype="http://schema.org/WebPageElement" itemprop="mainContentOfPage" id="main"
+          class="site-main">
+      <article id="documentation" class="type-post status-publish format-standard hentry category-non-classe">
+        <header class="entry-header">
+          <h1 class="entry-title" itemprop="headline">Realtime monitoring</h1>
+        </header>
+        <div class="entry-content" itemprop="text">
+          
+          <div class="section" id="realtime-monitoring">
+<span id="id1"></span>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>By default, Gatling only provides live feedback in the console output, and generates static HTML reports.</p>
+<p>Still, it’s possible to get live feedback.</p>
+</div>
+<div class="section" id="frontline">
+<h2>FrontLine<a class="headerlink" href="#frontline" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://gatling.io/#/services/frontline">FrontLine</a> is a commercial product from GatlingCorp, the company behind Gatling.</p>
+<p>Amongst other features like clustering support, advanced integration with CI tools (Jenkins, TeamCity and Bamboo) and with Grafana,
+FrontLine offers entreprise-grade realtime monitoring and metrics persistence.</p>
+<img alt="../_images/frontline.png" src="../_images/frontline.png" />
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">alt:</th><td class="field-body">FrontLine</td>
+</tr>
+</tbody>
+</table>
+<p>For more information, please get in touch at <strong>contact&#64;gatling.io</strong>.</p>
+</div>
+<div class="section" id="graphite-influxdb-grafana">
+<h2>Graphite-InfluxDB-Grafana<a class="headerlink" href="#graphite-influxdb-grafana" title="Permalink to this headline">¶</a></h2>
+<p>Gatling can provide live metrics via the Graphite protocol which can be
+persisted and visualised.</p>
+<p>The sections below describe how to configure Gatling with InfluxDB and
+Graphite, and use Grafana as a graphing library. We also present a lo-fi solution
+which prints parsed Graphite data to standard out.</p>
+<div class="section" id="gatling">
+<h3>Gatling<a class="headerlink" href="#gatling" title="Permalink to this headline">¶</a></h3>
+<p>In the <code class="docutils literal"><span class="pre">gatling.conf</span></code> add “graphite” to the data writers and specify the host
+of the Carbon or InfluxDB server.</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">{</span>
+  <span class="n">writers</span> <span class="k">=</span> <span class="o">[</span><span class="kt">console</span>, <span class="kt">file</span>, <span class="kt">graphite</span><span class="o">]</span>
+<span class="o">}</span>
+
+<span class="n">graphite</span> <span class="o">{</span>
+  <span class="n">host</span> <span class="k">=</span> <span class="s">&quot;192.0.2.235&quot;</span>  <span class="k">#</span> <span class="nc">InfluxDB</span> <span class="n">or</span> <span class="nc">Carbon</span> <span class="n">server</span>
+  <span class="k">#</span> <span class="n">writeInterval</span> <span class="k">=</span> <span class="mi">1</span>   <span class="k">#</span> <span class="nc">Default</span> <span class="n">write</span> <span class="n">interval</span> <span class="n">of</span> <span class="n">one</span> <span class="n">second</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="influxdb">
+<h3>InfluxDB<a class="headerlink" href="#influxdb" title="Permalink to this headline">¶</a></h3>
+<p>InfluxDB is one of the new crop of time-series databases <a class="footnote-reference" href="#f1" id="id3">[1]</a>. It is
+self-contained, easy-to-install and resource efficient.</p>
+<div class="section" id="install">
+<h4>Install<a class="headerlink" href="#install" title="Permalink to this headline">¶</a></h4>
+<p><a class="reference external" href="https://influxdata.com/downloads/#influxdb">Install InfluxDB</a> through your package manager.</p>
+</div>
+<div class="section" id="graphite-plugin">
+<h4>Graphite plugin<a class="headerlink" href="#graphite-plugin" title="Permalink to this headline">¶</a></h4>
+<p>Add the below to the Graphite section of <code class="docutils literal"><span class="pre">/etc/influxdb/influxdb.conf</span></code></p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span>[[graphite]]
+        enabled = true
+        database = &quot;gatlingdb&quot;
+
+        templates = [
+                &quot;gatling.*.*.*.* measurement.simulation.request.status.field&quot;,
+                &quot;gatling.*.users.*.* measurement.simulation.measurement.request.field&quot;
+        ]
+</pre></div>
+</div>
+</div>
+<div class="section" id="start">
+<h4>Start<a class="headerlink" href="#start" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">$</span> <span class="n">sudo</span> <span class="n">service</span> <span class="n">influxdb</span> <span class="n">start</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="verification">
+<h4>Verification<a class="headerlink" href="#verification" title="Permalink to this headline">¶</a></h4>
+<p>From the <a class="reference external" href="https://github.com/gatling/gatling-sbt-plugin-demo">gatling-sbt-plugin-demo project</a> run the ComputerWorld simulation, and</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span>$ influx -database &#39;gatlingdb&#39; -execute &#39;SELECT * FROM gatling where count != 0 LIMIT 10&#39;
+</pre></div>
+</div>
+<p>You should be presented with something similar to this:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">name</span><span class="k">:</span> <span class="kt">gatling</span>
+<span class="n">time</span>                <span class="n">count</span> <span class="n">max</span> <span class="n">mean</span> <span class="n">min</span> <span class="n">percentiles50</span> <span class="n">percentiles75</span> <span class="n">percentiles95</span> <span class="n">percentiles99</span> <span class="n">request</span>                  <span class="n">simulation</span>    <span class="n">status</span> <span class="n">stdDev</span>
+<span class="o">----</span>                <span class="o">-----</span> <span class="o">---</span> <span class="o">----</span> <span class="o">---</span> <span class="o">-------------</span> <span class="o">-------------</span> <span class="o">-------------</span> <span class="o">-------------</span> <span class="o">-------</span>                  <span class="o">----------</span>    <span class="o">------</span> <span class="o">------</span>
+<span class="mi">1485784307000000000</span> <span class="mi">3</span>     <span class="mi">23</span>  <span class="mi">21</span>   <span class="mi">21</span>  <span class="mi">21</span>            <span class="mi">21</span>            <span class="mi">23</span>            <span class="mi">23</span>            <span class="n">addNewComputer</span>           <span class="n">computerworld</span> <span class="n">all</span>    <span class="mi">0</span>
+<span class="mi">1485784307000000000</span> <span class="mi">3</span>     <span class="mi">26</span>  <span class="mi">23</span>   <span class="mi">22</span>  <span class="mi">22</span>            <span class="mi">22</span>            <span class="mi">26</span>            <span class="mi">26</span>            <span class="n">postComputers_Redirect_1</span> <span class="n">computerworld</span> <span class="n">ok</span>     <span class="mi">1</span>
+<span class="mi">1485784307000000000</span> <span class="mi">12</span>    <span class="mi">81</span>  <span class="mi">31</span>   <span class="mi">21</span>  <span class="mi">23</span>            <span class="mi">27</span>            <span class="mi">43</span>            <span class="mi">81</span>            <span class="n">allRequests</span>              <span class="n">computerworld</span> <span class="n">all</span>    <span class="mi">16</span>
+<span class="mi">1485784307000000000</span> <span class="mi">3</span>     <span class="mi">27</span>  <span class="mi">24</span>   <span class="mi">22</span>  <span class="mi">24</span>            <span class="mi">24</span>            <span class="mi">27</span>            <span class="mi">27</span>            <span class="n">postComputers</span>            <span class="n">computerworld</span> <span class="n">all</span>    <span class="mi">2</span>
+<span class="mi">1485784307000000000</span> <span class="mi">3</span>     <span class="mi">81</span>  <span class="mi">55</span>   <span class="mi">43</span>  <span class="mi">43</span>            <span class="mi">43</span>            <span class="mi">81</span>            <span class="mi">81</span>            <span class="n">getComputers</span>             <span class="n">computerworld</span> <span class="n">ok</span>     <span class="mi">17</span>
+<span class="mi">1485784307000000000</span> <span class="mi">3</span>     <span class="mi">23</span>  <span class="mi">21</span>   <span class="mi">21</span>  <span class="mi">21</span>            <span class="mi">21</span>            <span class="mi">23</span>            <span class="mi">23</span>            <span class="n">addNewComputer</span>           <span class="n">computerworld</span> <span class="n">ok</span>     <span class="mi">0</span>
+<span class="mi">1485784307000000000</span> <span class="mi">3</span>     <span class="mi">81</span>  <span class="mi">55</span>   <span class="mi">43</span>  <span class="mi">43</span>            <span class="mi">43</span>            <span class="mi">81</span>            <span class="mi">81</span>            <span class="n">getComputers</span>             <span class="n">computerworld</span> <span class="n">all</span>    <span class="mi">17</span>
+<span class="mi">1485784307000000000</span> <span class="mi">12</span>    <span class="mi">81</span>  <span class="mi">31</span>   <span class="mi">21</span>  <span class="mi">23</span>            <span class="mi">27</span>            <span class="mi">43</span>            <span class="mi">81</span>            <span class="n">allRequests</span>              <span class="n">computerworld</span> <span class="n">ok</span>     <span class="mi">16</span>
+<span class="mi">1485784307000000000</span> <span class="mi">3</span>     <span class="mi">26</span>  <span class="mi">23</span>   <span class="mi">22</span>  <span class="mi">22</span>            <span class="mi">22</span>            <span class="mi">26</span>            <span class="mi">26</span>            <span class="n">postComputers_Redirect_1</span> <span class="n">computerworld</span> <span class="n">all</span>    <span class="mi">1</span>
+<span class="mi">1485784307000000000</span> <span class="mi">3</span>     <span class="mi">27</span>  <span class="mi">24</span>   <span class="mi">22</span>  <span class="mi">24</span>            <span class="mi">24</span>            <span class="mi">27</span>            <span class="mi">27</span>            <span class="n">postComputers</span>            <span class="n">computerworld</span> <span class="n">ok</span>     <span class="mi">2</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="graphite">
+<h3>Graphite<a class="headerlink" href="#graphite" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id4">
+<h4>Install<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h4>
+<p>Graphite can be installed through <a class="reference external" href="https://github.com/obfuscurity/synthesize">Synthesize</a> on Ubuntu 14.04</p>
+</div>
+<div class="section" id="configuration">
+<h4>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h4>
+<p>In <code class="docutils literal"><span class="pre">$GRAPHITE_HOME/conf/storage-schemas.conf</span></code>:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span>[Gatling stats]
+priority = 110
+pattern = ^gatling\..*
+retentions = 1s:6d,10s:60d
+</pre></div>
+</div>
+<p>If you use a different writeInterval in your Graphite data writer configuration,
+make sure that your smallest retention is equal or greater than your
+writeInterval.</p>
+<p>In <code class="docutils literal"><span class="pre">$GRAPHITE_HOME/conf/storage-aggregation.conf</span></code>:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="o">[</span><span class="kt">sum</span><span class="o">]</span>
+<span class="n">pattern</span> <span class="k">=</span> <span class="o">\.</span><span class="n">count$</span>
+<span class="n">xFilesFactor</span> <span class="k">=</span> <span class="mi">0</span>
+<span class="n">aggregationMethod</span> <span class="k">=</span> <span class="n">sum</span>
+
+<span class="o">[</span><span class="kt">min</span><span class="o">]</span>
+<span class="n">pattern</span> <span class="k">=</span> <span class="o">\.</span><span class="n">min$</span>
+<span class="n">xFilesFactor</span> <span class="k">=</span> <span class="mf">0.1</span>
+<span class="n">aggregationMethod</span> <span class="k">=</span> <span class="n">min</span>
+
+<span class="o">[</span><span class="kt">max</span><span class="o">]</span>
+<span class="n">pattern</span> <span class="k">=</span> <span class="o">\.</span><span class="n">max$</span>
+<span class="n">xFilesFactor</span> <span class="k">=</span> <span class="mf">0.1</span>
+<span class="n">aggregationMethod</span> <span class="k">=</span> <span class="n">max</span>
+
+<span class="o">[</span><span class="kt">default_average</span><span class="o">]</span>
+<span class="n">pattern</span> <span class="k">=</span> <span class="o">.*</span>
+<span class="n">xFilesFactor</span> <span class="k">=</span> <span class="mf">0.3</span>
+<span class="n">aggregationMethod</span> <span class="k">=</span> <span class="n">average</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="collectd">
+<h3>collectd<a class="headerlink" href="#collectd" title="Permalink to this headline">¶</a></h3>
+<p>In collectd.conf</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="o">...</span>
+<span class="nc">LoadPlugin</span> <span class="n">write_graphite</span>
+<span class="o">...</span>
+<span class="o">&lt;</span><span class="nc">Plugin</span> <span class="n">write_graphite</span><span class="o">&gt;</span>
+ <span class="o">&lt;</span><span class="nc">Node</span> <span class="s">&quot;example&quot;</span><span class="o">&gt;</span>
+  <span class="nc">Host</span> <span class="s">&quot;receiving.server.hostname&quot;</span>
+  <span class="nc">Port</span> <span class="s">&quot;2003&quot;</span>
+  <span class="nc">Protocol</span> <span class="s">&quot;tcp&quot;</span>
+  <span class="nc">LogSendErrors</span> <span class="kc">true</span>
+  <span class="nc">Prefix</span> <span class="s">&quot;collectd&quot;</span>
+  <span class="nc">Postfix</span> <span class="s">&quot;collectd&quot;</span>
+  <span class="nc">StoreRates</span> <span class="kc">true</span>
+  <span class="nc">AlwaysAppendDS</span> <span class="kc">false</span>
+  <span class="nc">EscapeCharacter</span> <span class="s">&quot;_&quot;</span>
+ <span class="o">&lt;/</span><span class="nc">Node</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="nc">Plugin</span><span class="o">&gt;</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="grafana">
+<h3>Grafana<a class="headerlink" href="#grafana" title="Permalink to this headline">¶</a></h3>
+<p>Grafana is a popular open-source graphing application.</p>
+<p>There are <a class="reference external" href="http://docs.grafana.org/installation/">binaries</a> for all the major
+GNU/Linux distributions.</p>
+<p>Once Grafana is installed and the service is running navigate to :3000 and
+sign-in as admin/admin (change in /etc/grafana/grafana.ini at the earliest
+opportunity).</p>
+<p>InfluxDB or Graphite can be set as a datasource as described <a class="reference external" href="http://docs.grafana.org/datasources/overview/">here</a>. There is a ready made <a class="reference external" href="https://github.com/gatling/gatling/tree/master/src/sphinx/realtime_monitoring/code/gatling.json">Grafana template</a>
+if InfluxDB is used as a datasource. The graphs should look similar to the below when running a simulation:</p>
+<img alt="gatling-grafana" src="../_images/gatling-grafana.png" />
+</div>
+<div class="section" id="ports">
+<h3>Ports<a class="headerlink" href="#ports" title="Permalink to this headline">¶</a></h3>
+<p>The ports 2003 (Graphite protocol), 8086 (InfluxDB network communication) and
+3000 (Grafana) will need to be exposed on the Grafana-InfluxDB box.</p>
+</div>
+<div class="section" id="lo-fi">
+<h3>Lo-fi<a class="headerlink" href="#lo-fi" title="Permalink to this headline">¶</a></h3>
+<p>Netcat can be used to listen to the Graphite port. The below awk
+script parses the data.</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="nc">BEGIN</span><span class="o">{</span>
+  <span class="n">print</span> <span class="s">&quot;--------- stats ....... timestamp RPS error_percent 95percentile_response_time active_users -----&quot;</span><span class="o">;</span>
+  <span class="n">curr</span><span class="k">=</span><span class="mi">0</span>
+<span class="o">}</span>
+
+<span class="o">{</span>
+  <span class="k">if</span><span class="o">(</span><span class="nc">$NF</span> <span class="o">!=</span> <span class="n">curr</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">print</span> <span class="nc">$NF</span><span class="s">&quot; &quot;</span><span class="n">n</span><span class="s">&quot; &quot;</span><span class="n">epct</span><span class="s">&quot; &quot;</span><span class="n">ptile</span><span class="s">&quot; &quot;</span><span class="n">u</span><span class="o">;</span>
+<span class="o">}</span>
+  <span class="n">curr</span><span class="o">=</span><span class="nc">$NF</span>
+<span class="o">}</span>
+
+<span class="o">/</span><span class="n">allRequests</span><span class="o">.</span><span class="n">all</span><span class="o">.</span><span class="n">count</span><span class="o">/</span>        <span class="o">{</span><span class="n">n</span><span class="o">=</span><span class="n">$2</span><span class="o">}</span>
+<span class="o">/</span><span class="n">allRequests</span><span class="o">.</span><span class="n">ko</span><span class="o">.</span><span class="n">count</span><span class="o">/</span>         <span class="o">{</span><span class="n">e</span><span class="o">=</span><span class="n">$2</span><span class="o">;</span> <span class="k">if</span><span class="o">(</span><span class="n">n</span><span class="o">==</span><span class="mi">0</span><span class="o">){</span><span class="n">epct</span><span class="k">=</span><span class="mi">0</span><span class="o">}</span><span class="k">else</span><span class="o">{</span><span class="n">epct</span><span class="k">=</span><span class="n">int</span><span class="o">(</span><span class="n">e</span><span class="o">/</span><span class="n">n</span><span class="o">*</span><span class="mi">100</span><span class="o">)}}</span>
+<span class="o">/</span><span class="n">allRequests</span><span class="o">.</span><span class="n">ok</span><span class="o">.</span><span class="n">percentiles95</span><span class="o">/</span> <span class="o">{</span><span class="n">ptile</span><span class="o">=</span><span class="n">$2</span><span class="o">}</span>
+<span class="o">/</span><span class="n">users</span><span class="o">.</span><span class="n">allUsers</span><span class="o">.</span><span class="n">active</span><span class="o">/</span>        <span class="o">{</span><span class="n">u</span><span class="o">=</span><span class="n">$2</span><span class="o">}</span>
+</pre></div>
+</div>
+<p>To run the script:</p>
+<div class="highlight-scala"><div class="highlight"><pre><span></span><span class="n">nc</span> <span class="o">-</span><span class="n">l</span> <span class="mi">2003</span> <span class="o">|</span> <span class="n">awk</span> <span class="o">-</span><span class="n">f</span> <span class="n">a</span><span class="o">.</span><span class="n">awk</span>
+</pre></div>
+</div>
+<p class="rubric">Footnotes</p>
+<table class="docutils footnote" frame="void" id="f1" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[1]</a></td><td>A time series is a sequence of data points that are measured over time and a time-series database optimises that data.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+          
+        </div>
+      </article>
+    </main>
+  </div>
+</div>
+
+
+<div class="sidebar-wrap col-md-3 content-left-wrap">
+  <div id="secondary" class="widget-area" role="complementary" itemscope="itemscope"
+       itemtype="http://schema.org/WPSideBar">
+    <aside id="search-2" class="widget widget_search">
+      <form role="form" method="get" class="search-form" action="../search.html">
+        <label>
+          <span class="screen-reader-text">Search through the documentation&nbsp;:</span>
+          <input type="search" class="search-field" placeholder="Search the documentation" name="q">
+        </label>
+        <input type="submit" class="search-submit" value="Search">
+      </form>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Table of Content</h1>
+      <ul>
+<li><a class="reference internal" href="#">Realtime monitoring</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#frontline">FrontLine</a></li>
+<li><a class="reference internal" href="#graphite-influxdb-grafana">Graphite-InfluxDB-Grafana</a><ul>
+<li><a class="reference internal" href="#gatling">Gatling</a></li>
+<li><a class="reference internal" href="#influxdb">InfluxDB</a><ul>
+<li><a class="reference internal" href="#install">Install</a></li>
+<li><a class="reference internal" href="#graphite-plugin">Graphite plugin</a></li>
+<li><a class="reference internal" href="#start">Start</a></li>
+<li><a class="reference internal" href="#verification">Verification</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#graphite">Graphite</a><ul>
+<li><a class="reference internal" href="#id4">Install</a></li>
+<li><a class="reference internal" href="#configuration">Configuration</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#collectd">collectd</a></li>
+<li><a class="reference internal" href="#grafana">Grafana</a></li>
+<li><a class="reference internal" href="#ports">Ports</a></li>
+<li><a class="reference internal" href="#lo-fi">Lo-fi</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    </aside>
+    
+    <aside class="widget">
+      <h1 class="widget-title">Previous topic</h1>
+      <ul>
+        <li>
+          <a href="../jms.html" title="Previous Chapter: JMS">
+            JMS
+          </a>
+        </li>
+      </ul>
+    </aside>
+    
+    
+    <aside class="widget">
+      <h1 class="widget-title">Next topic</h1>
+      <ul>
+        <li>
+          <a href="../extensions/index.html" title="Next Chapter: Extensions">
+            Extensions
+          </a>
+        </li>
+      </ul>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Contribute</h1>
+      <ul>
+        <li>
+          <a href="https://github.com/gatling/gatling/edit/master/src/sphinx/realtime_monitoring/index.rst">Edit this page on Github</a>
+        </li>
+      </ul>
+    </aside>
+  </div>
+</div>
+
+
+
+
+
